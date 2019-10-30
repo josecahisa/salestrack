@@ -1,0 +1,13 @@
+django-env
+django-env/*
+salestrack-ui/node_modules/*
+salestrack-ui/build/*
+salestrack.code-workspace
+*.pyc
+db.sqlite3
+settings.py
+*.pyc
+package-lock.json
+htmlcov
+.DS_Store
+.coverage

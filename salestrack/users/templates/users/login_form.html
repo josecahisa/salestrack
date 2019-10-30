@@ -1,0 +1,47 @@
+{% extends "base_site.html" %}
+{% load static %}
+{% block extend_header %}
+    <link rel="stylesheet" href="{% static "login_form/login_form.css" %}" type="text/css" charset="utf-8">
+{% endblock %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+            <div class="card card-signin my-5">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Iniciar Sesión</h5>
+                    <form role="form"
+                        action="{% url 'user_login' %}"
+                        method="post"
+                        class="form-signin"
+                    >
+                        {% csrf_token %}
+                        <div class="form-label-group">
+                            <input type="text" id="id_username" name="username" class="form-control" placeholder="Email address" required autofocus>
+                            <label for="id_username">Usuario</label>
+                        </div>
+        
+                        <div class="form-label-group">
+                            <input type="password" id="id_password" name="password" class="form-control" placeholder="Password" required>
+                            <label for="id_password">Contraseña</label>
+                        </div>
+        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input" id="customCheck1">
+                            <label class="custom-control-label" for="customCheck1">Remember password</label>
+                        </div>
+                        <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit" data-test="login-button">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
