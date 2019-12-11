@@ -11,3 +11,5 @@ package-lock.json
 htmlcov
 .DS_Store
 .coverage
+.vscode/*
+node_modules

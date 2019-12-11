@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import request from 'superagent';
 
@@ -218,7 +218,7 @@ export default function AlertsReport() {
     }
 
     return (
-        <>
+        <Fragment>
             <MenuAppBar />
             <div className={classes.mainContainer}>
                 <div className={classes.titleArea}>
@@ -253,7 +253,7 @@ export default function AlertsReport() {
                     }
                 </div>
             </div>
-        </>
+        </Fragment>
     );
 }
 

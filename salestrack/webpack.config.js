@@ -6,9 +6,9 @@ var ExtractText = require('extract-text-webpack-plugin');
 module.exports = {
     watch: true,
     entry:  {
-        index: path.join(__dirname, 'static/js/components/index'),
-        menu: path.join(__dirname, 'static/js/components/menu'),
-        alerts: path.join(__dirname, 'static/js/components/AlertsReport/AlertsReport')
+        index: path.join(__dirname, 'salestrack/static/js/components/index.js'),
+        menu: path.join(__dirname, 'salestrack/static/js/components/menu'),
+        alerts: path.join(__dirname, 'salestrack/static/js/components/AlertsReport/AlertsReport')
     },
     output: {
         path: path.join(__dirname, 'static/dist'),
@@ -26,8 +26,14 @@ module.exports = {
     module: {
         rules: [{
                 test: /\.(js|jsx)$/,
-                loader: 'babel-loader',
+                include: path.resolve(__dirname, 'salestrack/static/js/components'),
                 exclude: /node_modules/,
+                use: [{
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/react']
+                    }
+                }]
             },
             {
                 test: /\.css$/,
@@ -44,7 +50,8 @@ module.exports = {
     },
     resolve: {
         alias: {
-            components: path.resolve(__dirname, '/Users/jcahisa/code/django/maquinas/static/js/components/')
+            // components: path.resolve(__dirname, '/Users/jcahisa/code/django/salestrack_app/salestrack/salestrack/static/js/components/')
+            components: path.join(__dirname, 'salestrack/static/js/components/')
         }
     },
     devtool: 'source-map'

@@ -42,6 +42,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+// TODO: the menu should receive an array
 export default function MenuAppBar() {
   const classes = useStyles();
   const [auth, setAuth] = React.useState(true);
@@ -98,7 +99,7 @@ export default function MenuAppBar() {
             <Toolbar  variant="dense" className={classes.toolBar} data-test="mainMenu">
                 <div className={classes.leftPane} >
                     <Typography variant="h6" className={classes.title}>
-                        Softrack
+                        Salestrack
                     </Typography>
                     <Button
                         color="inherit"
@@ -108,7 +109,7 @@ export default function MenuAppBar() {
                         className={classes.topMenuButton}
                         data-test="menuInformes"
                     >
-                        Informes
+                        Presupuestos
                     </Button>
                     <Menu
                         id="inform-menu"
@@ -132,13 +133,13 @@ export default function MenuAppBar() {
                                 className={classes.link}
                                 onClick={displayClickedLink(alertasUrl)}
                             >
-                                Alertas de Mantenimiento
+                                Nuevo Presupuesto
                             </Link>
                         </MenuItem>
                         <MenuItem onClick={handleClose} data-test="menuOption-InformeDeProyectos">
                             <Link
                                 href={informeProyectoUrl} color="inherit" className={classes.link}>
-                                Informe de Proyectos
+                                Listado de Presupuestos
                             </Link>
                         </MenuItem>
                         <MenuItem onClick={handleClose} >
@@ -148,7 +149,7 @@ export default function MenuAppBar() {
                                 className={classes.link}
                                 data-test="menuOption-HistoriaDeMaquinas"
                             >
-                                Historia de Maquinas
+                                Listado de Notas de Ventas
                             </Link>
                         </MenuItem>
                     </Menu>
@@ -182,7 +183,7 @@ export default function MenuAppBar() {
                                 onClick={displayClickedLink(parteDiarioUrl)}
                                 data-test="menuOption-PartesDiarios"
                             >
-                                Partes Diarios
+                                Productos
                             </Link>
                         </MenuItem>
                         <MenuItem onClick={handleClose} >
@@ -193,7 +194,7 @@ export default function MenuAppBar() {
                                 onClick={displayClickedLink(ordenMantenimientoUrl)}
                                 data-test="menuOption-OrdenMantYReparacion"
                             >
-                                Orden de Mantenimiento y Reparación
+                                Accesorios
                             </Link>
                         </MenuItem>
                         <Divider/>
@@ -205,116 +206,7 @@ export default function MenuAppBar() {
                                 onClick={displayClickedLink(tipoMaquinaUrl)}
                                 data-test="menuOption-TiposDeMaquinas"
                             >
-                                Tipos de Maquinas
-                            </Link>
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={marcaUrl}
-                                color="inherit"
-                                className={classes.link}
-                                onClick={displayClickedLink(marcaUrl)}
-                                data-test="menuOption-Marcas"
-                            >
-                                Marcas
-                            </Link>
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={modeloUrl}
-                                color="inherit"
-                                className={classes.link}
-                                data-test="menuOption-Modelos"
-                            >
-                                Modelos
-                            </Link>
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={maquinasUrl}
-                                color="inherit"
-                                className={classes.link}
-                                data-test="menuOption-Maquinas"
-                            >
-                                Máquinas
-                            </Link>
-                        </MenuItem>
-                        <Divider/>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={tareasMantenimientoUrl}
-                                color="inherit"
-                                className={classes.link}
-                                data-test="menuOption-TareasDeMantenimiento"
-                            >
-                                Tareas de Mantenimiento
-                            </Link>
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={tareasReparacionUrl}
-                                color="inherit"
-                                className={classes.link}
-                                data-test="menuOption-TareasDeReparacion"
-                            >
-                                Tareas de Reparación
-                            </Link>
-                        </MenuItem>
-                        <Divider/>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={lugarUrl}
-                                color="inherit"
-                                className={classes.link}
-                                data-test="menuOption-Lugares"
-                            >
-                                Lugares
-                            </Link>
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={proyectoUrl}
-                                color="inherit"
-                                className={classes.link}
-                                data-test="menuOption-Proyectos"
-                            >
-                                Proyectos
-                            </Link>
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Link
-                                href={unidadMantenimientoUrl}
-                                color="inherit"
-                                className={classes.link}
-                                data-test="menuOption-Unidades"
-                            >
-                                Unidades
-                            </Link>
-                        </MenuItem>
-                    </Menu>
-                    <Button color="inherit" aria-controls="import-menu" aria-haspopup="true" onClick={handleMenu("import")} className={classes.topMenuButton}>
-                        Importar Datos
-                    </Button>
-                    <Menu
-                        id="import-menu"
-                        anchorEl={importAnchorEl}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                        }}
-                        getContentAnchorEl={null}
-                        keepMounted
-                        open={Boolean(importAnchorEl)}
-                        onClose={handleClose}
-                    >
-                        <MenuItem onClick={handleClose}>
-                            <Link href={importarMaquinasUrl} color="inherit" className={classes.link}>
-                                Importar Máquinas
-                            </Link>
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Link href={importarServiciosUrl} color="inherit" className={classes.link}>
-                                Importar Servicios de Mantenimiento
+                                Condiciones de Venta
                             </Link>
                         </MenuItem>
                     </Menu>

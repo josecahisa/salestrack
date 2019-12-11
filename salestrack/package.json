@@ -1,7 +1,7 @@
 {
-  "name": "maquinas-ui",
+  "name": "salestrack-ui",
   "version": "1.0.0",
-  "description": "UI para la aplicacion de maquinas",
+  "description": "Salestrack application UI",
   "main": "index.js",
   "dependencies": {
     "@babel/preset-react": "^7.0.0",
@@ -41,12 +41,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/josecahisa/softrack.git"
+    "url": "git+https://github.com/josecahisa/salestrack.git"
   },
   "author": "josecahisa",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/josecahisa/softrack/issues"
+    "url": "https://github.com/josecahisa/salestrack/issues"
   },
-  "homepage": "https://github.com/josecahisa/softrack#readme"
+  "homepage": "https://github.com/josecahisa/salestrack#readme"
 }
