@@ -17,9 +17,20 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 from .views import welcome
+from django.conf.urls.static import static # new
+from django.conf.urls import url
+from django.conf import settings # new
+from graphene_django.views import GraphQLView
+from salestrack.schema import schema
 
 urlpatterns = [
     path('users/', include('users.urls')),
-    path('admin/', admin.site.urls),
+    path('products/', include('products.urls')),
+    path('clients/', include('clients.urls')),
+    path('budgets/', include('budgets.urls')),
+    path('admin/', admin.site.urls),    
     path('', welcome, name='welcome'),
+    url(r'^graphql$', GraphQLView.as_view(graphiql=True, schema=schema)),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

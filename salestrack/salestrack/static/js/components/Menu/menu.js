@@ -50,23 +50,19 @@ export default function MenuAppBar() {
   const [adminAnchorEl, setAdminAnchorEl] = React.useState(null);
   const [importAnchorEl, setImportAnchorEl] = React.useState(null);
   const [iconButtonAnchorEl, setIconButtonAnchorEl] = React.useState(null);
-  const alertasUrl = '/maquinas/alertas';
+  // Models Admin
+  const productsAdminUrl = '/admin/products/product/';
+  const categoryAdminUrl = '/admin/products/category/';
+  const classificationAdminUrl = '/admin/products/classification/';
+  const brandAdminUrl = '/admin/products/brand/';
+  const businessUnitAdminUrl = '/admin/products/business_unit/';
+  // Not in Use:
+  const alertasUrl = '/budgets/budget_form';
   const informeProyectoUrl = '/maquinas/horas_proyecto';
   const historiaMaquinaUrl = '/maquinas/historia_maquina';
-  const parteDiarioUrl = '/admin/maquinas_app/partediario/';
-  const ordenMantenimientoUrl = '/admin/maquinas_app/ordenmantenimiento/';
-  const ordenTrabajoUrl = '/admin/maquinas_app/ordentrabajo/';
-  const tipoMaquinaUrl = '/admin/maquinas_app/tipomaquina/';
-  const marcaUrl = '/admin/maquinas_app/marca/';
-  const modeloUrl = '/admin/maquinas_app/modelo/';
-  const maquinasUrl = '/admin/maquinas_app/maquina/';
-  const tareasMantenimientoUrl = '/admin/maquinas_app/tareamantenimiento/';
-  const tareasReparacionUrl = '/admin/maquinas_app/tareareparacion/';
-  const lugarUrl = '/admin/maquinas_app/lugar/';
-  const proyectoUrl = '/admin/maquinas_app/proyecto/';
-  const unidadMantenimientoUrl = '/admin/maquinas_app/unidadmantenimiento/';
-  const importarMaquinasUrl = '/maquinas/importar_maquinas';
-  const importarServiciosUrl = '/maquinas/importar_servicios';
+  // Import options
+  const productImportUrl = '/products/import_products';
+  // Logout
   const logOutUrl = '/users/logout?next=/users/login';
 
   const handleMenu = option => event => {
@@ -90,7 +86,7 @@ export default function MenuAppBar() {
   }
 
   const displayClickedLink = clickedLink => () => {
-    // console.log('clicked on link ' + clickedLink);
+    console.log('clicked on link ' + clickedLink);
   }
 
   return (
@@ -177,39 +173,81 @@ export default function MenuAppBar() {
                     >
                         <MenuItem onClick={handleClose} >
                             <Link
-                                href={parteDiarioUrl}
+                                href={productsAdminUrl}
                                 color="inherit"
                                 className={classes.link}
-                                onClick={displayClickedLink(parteDiarioUrl)}
-                                data-test="menuOption-PartesDiarios"
+                                onClick={displayClickedLink(productsAdminUrl)}
+                                data-test="menuOption-productAdmin"
                             >
                                 Productos
                             </Link>
                         </MenuItem>
                         <MenuItem onClick={handleClose} >
                             <Link
-                                href={ordenMantenimientoUrl}
+                                href={categoryAdminUrl}
                                 color="inherit"
                                 className={classes.link}
-                                onClick={displayClickedLink(ordenMantenimientoUrl)}
-                                data-test="menuOption-OrdenMantYReparacion"
+                                onClick={displayClickedLink(categoryAdminUrl)}
+                                data-test="menuOption-categoryAdmin"
                             >
-                                Accesorios
+                                Categorías
                             </Link>
                         </MenuItem>
-                        <Divider/>
-                        <MenuItem onClick={handleClose}>
+                        <MenuItem onClick={handleClose} >
                             <Link
-                                href={tipoMaquinaUrl}
+                                href={classificationAdminUrl}
                                 color="inherit"
                                 className={classes.link}
-                                onClick={displayClickedLink(tipoMaquinaUrl)}
-                                data-test="menuOption-TiposDeMaquinas"
+                                onClick={displayClickedLink(classificationAdminUrl)}
+                                data-test="menuOption-classificationAdmin"
                             >
-                                Condiciones de Venta
+                                Rubro
+                            </Link>
+                        </MenuItem>
+                        <MenuItem onClick={handleClose} >
+                            <Link
+                                href={businessUnitAdminUrl}
+                                color="inherit"
+                                className={classes.link}
+                                onClick={displayClickedLink(businessUnitAdminUrl)}
+                                data-test="menuOption-businessUnitAdmin"
+                            >
+                                Unidad de Negocio
+                            </Link>
+                        </MenuItem>
+                        <MenuItem onClick={handleClose} >
+                            <Link
+                                href={brandAdminUrl}
+                                color="inherit"
+                                className={classes.link}
+                                onClick={displayClickedLink(brandAdminUrl)}
+                                data-test="menuOption-businessUnitAdmin"
+                            >
+                                ABM Marcas
                             </Link>
                         </MenuItem>
                     </Menu>
+                    <Button color="inherit" aria-controls="import-menu" aria-haspopup="true" onClick={handleMenu("import")} className={classes.topMenuButton}>
+                        Importar Datos
+                    </Button>
+                    <Menu
+                        id="import-menu"
+                        anchorEl={importAnchorEl}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                        getContentAnchorEl={null}
+                        keepMounted
+                        open={Boolean(importAnchorEl)}
+                        onClose={handleClose}
+                    >
+                        <MenuItem onClick={handleClose}>
+                            <Link href={productImportUrl} color="inherit" className={classes.link}>
+                                Importar Productos
+                            </Link>
+                        </MenuItem>
+                    </Menu>                    
                 </div>
                 {auth && (
                     <div>

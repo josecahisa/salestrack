@@ -10,11 +10,15 @@ This is a budgeting and Sales tracking system
 cd salestrack
 ```
 
-3. Create a Virtual environment in the project folder
-
-```
-python3 -m venv django-env
-```
+3. Activate your virtual environment.
+    3.a if This is the first time, you need to create a Virtual environment in the project folder
+        ```
+        python3 -m venv django-env
+        ```
+    3.b if not the first time, then activate only:
+        ```
+        . django-env/bin/activate
+        ```
 
 4. Install all the dependencies
 

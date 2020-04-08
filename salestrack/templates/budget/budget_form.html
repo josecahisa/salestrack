@@ -1,0 +1,29 @@
+{% extends "base_main_site_nomenu.html" %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}
+Presupuesto
+{% endblock %}
+
+{% block react_app %}
+<div id="react-app-budget-form"></div>
+{% endblock %}
+
+{% block content %}
+{% load l10n %}
+{% localize on %}
+
+<container class="container-fluid">
+    <div class="row font-weight-bold text-center align-items-center h-50 mb-2">
+        <div class="col-sm-12">
+            {% render_bundle 'react_app' 'js' %}
+        </div>
+    </div>
+
+    <!-- <div id="app"></div> -->
+</container>
+{% endlocalize %}
+
+{% endblock %}
+

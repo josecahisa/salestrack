@@ -6,9 +6,11 @@ var ExtractText = require('extract-text-webpack-plugin');
 module.exports = {
     watch: true,
     entry:  {
-        index: path.join(__dirname, 'salestrack/static/js/components/index.js'),
-        menu: path.join(__dirname, 'salestrack/static/js/components/menu'),
-        alerts: path.join(__dirname, 'salestrack/static/js/components/AlertsReport/AlertsReport')
+        react_app: path.join(__dirname, 'salestrack/static/js/components/App/App')
+        // index: path.join(__dirname, 'salestrack/static/js/components/index.js'),
+        // menu: path.join(__dirname, 'salestrack/static/js/components/menu'),
+        // alerts: path.join(__dirname, 'salestrack/static/js/components/AlertsReport/AlertsReport'),
+        // app: path.join(__dirname, 'salestrack/static/js/components/App/App')
     },
     output: {
         path: path.join(__dirname, 'static/dist'),
