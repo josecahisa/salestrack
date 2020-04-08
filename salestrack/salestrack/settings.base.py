@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'graphene_django',
     'users',
     'products',
     'clients',
@@ -117,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-AR'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Argentina/Salta'
 
 USE_I18N = True
 
@@ -139,3 +141,9 @@ LOGIN_REDIRECT_URL="welcome"
 LOGOUT_REDIRECT_UTL="user_login"
 LOGIN_URL="user_login"
 
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+GRAPHENE = {
+    'SCHEMA': 'salestrack.schema.schema'
+}
