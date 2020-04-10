@@ -10,8 +10,13 @@ This is a budgeting and Sales tracking system
 cd salestrack
 ```
 
-3. Activate your virtual environment.
+3. Create/activate a Virtual environment in the project folder
     3.a if This is the first time, you need to create a Virtual environment in the project folder
+        If you need to install venv in ubuntu system, run command:
+        ```
+        sudo apt install python3-venv
+        ```
+
         ```
         python3 -m venv django-env
         ```
@@ -32,13 +37,21 @@ pip install -r requirements.txt
 cd salestrack
 ```
 
-6. Apply all the migrations
+6. duplicate `settings.base.py` as `settings.py`
+Create the settings file and change `SECRET_KEY` 
+
+7. Apply all the migrations
 
 ```
 python manage.py migrate
 ```
 
-7. Start the server
+8. Create superuser
+```
+python manage.py createsuperuser
+```
+
+8. Start the server
 
 ```
 python manage.py runserver
