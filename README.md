@@ -2,6 +2,7 @@
 This is a budgeting and Sales tracking system
 
 # Getting started
+## Backend Setup
 1. Clone the repo
 
 2. Go the git project folder
@@ -51,7 +52,25 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-8. Start the server
+## UI Setup
+The UI for this project is created with React
+9. Install npm (if not already installed)
+
+10. Verify your node version. We are currently running on 12.16.2
+
+11. Install all required packages
+```
+npm install
+```
+This will take a while...
+
+12. Create the javascript bundle
+```
+npm start
+```
+
+## Start the server (finally)
+13. Start the server
 
 ```
 python manage.py runserver
