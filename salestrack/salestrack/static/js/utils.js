@@ -29,23 +29,6 @@ export const getClientAddresses = (idClient, addressElement) => {
 
     console.log('idclient = ' + idClient);
 
-    // django.jQuery.ajax({
-    //     url: "/clients/json/client_addresses_by_id/" + idClient + "/",
-    //     success: function(result) {
-    //         if (result) {
-    //             const addressesResponse = django.jQuery.parseJSON(result);
-
-    //             debugger
-    //             if (idclient === null || idclient.trim() === '') {
-    //                 const addressId = addressesResponse[0].fields.addressId;
-    //                 if (addressId) {
-    //                     django.jQuery(addressElement).val(addressId);
-    //                 }
-    //             }
-    //         } 
-    //     }
-    //  });
-
      django.jQuery.ajax({
         url: "/clients/json/client_addresses_by_id/" + idClient + "/",
         success: function(result) {

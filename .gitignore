@@ -13,3 +13,4 @@ htmlcov
 .coverage
 .vscode/*
 node_modules
+salestrack/media/*

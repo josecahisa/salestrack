@@ -59,6 +59,8 @@ class Product(models.Model):
 
     fechaUltimaModificacion = models.DateTimeField(auto_now=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
+    is_accesory = models.BooleanField(verbose_name="Es Accesorio", default=False)
+    free_accesories = models.IntegerField(verbose_name="Cant Accesorios Incluidos", default=0)
 
     photo = models.ImageField(upload_to='products', null=True, blank=True)
 
@@ -69,6 +71,14 @@ class Product(models.Model):
             return ''
     
     photo_thumbnail.short_description = 'Foto'
+
+    def photo_tag(self):
+        if self.photo:
+            return mark_safe('<img src="%s" style="width: 150px; height:150px;"  />' % (self.photo.url))
+        else:
+            return ''
+
+    photo_tag.description = 'Imagen del producto'
 
     def __str__(self):
         return '{0} - {1}'.format(self.provider_alpha_code, self.description)

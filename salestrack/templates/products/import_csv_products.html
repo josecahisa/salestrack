@@ -9,6 +9,97 @@
                 <button type="submit">Upload CSV</button>
         </form>
     </div>
-    <br />
+    {% if total_rows %}
+        <style type="text/css">
+        .tg  {border-collapse:collapse;border-spacing:0;}
+        .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+        .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+        .tg .tg-zv4m{border-color:#ffffff;text-align:left;vertical-align:top}
+        </style>
+        <table class="tg">
+          <tr>
+            <th class="tg-zv4m">Total de Filas Procesadas: </th>
+            <th class="tg-zv4m">{{ total_rows }}</th>
+          </tr>
+          <tr>
+            <th class="tg-zv4m">Total de Filas con Error: </th>
+            <th class="tg-zv4m">{{ error }}</th>
+          </tr>
+          <tr>
+            <th class="tg-zv4m">Total de Filas OK: </th>
+            <th class="tg-zv4m">{{ ok }}</th>
+          </tr>
+        </table>
+        {% if error_detail %}
+            <table>
+                {% for error_det in error_detail %}
+                <tr>
+                    <td> {{ error_det.source_row }} </td>
+                    <td> {{ error_det.error_message }} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    {% else %}
+        <hr>
+        <p></p>
+        <div>Debe utilizar un archivo que contenga las siguientes columnas. El titulo de la columna debe ser el indicado, de lo contrario no se podra reconocer</div>
+        <ul>
+            <p>
+                <li> <b>UNIDAD DE NEGOCIO</b>
+                    <p>Unidad de negocios a la que pertene la máquina, ejemplos.</p>
+                    <ol>
+                        <li>HORNOS</li>
+                        <li>MAQUINAS</li>
+                    </ol>
+                </li>
+            </p>
+            <p>
+                <li> <b>CLASIFICACION </b>
+                    <p>Clasificación de la máquina. Ejemplos:</p>
+                    <ol>
+                        <li>DE PISO</li>
+                        <li>CAMARAS</li>
+                        <li>BATIDORAS</li>
+                        <li>BOLLERAS</li>
+                    </ol>
+                </li>
+            </p>
+            <p>
+                <li> <b>RUBRO</b>
+                    <p>Rubro al que pertenece la máquina. Ejemplos</p>
+                    <ol>
+                        <li>Hornos</li>
+                        <li>Camaras</li>
+                        <li>Accesorios y opcionales</li>
+                    </ol>
+                </li>
+            </p>
+            <p>
+                <li> <b>DESC_MARCA</b>
+                    <p>Marca de la máquina</p>
+                </li>
+            </p>
+            <p>
+                <li><b>COD_LISPRE</b>
+                    <p>Este codigo agrupa varias lineas de productos que responden a la misma máquina pero con diferentes variaciones, como el ingreso de corriente (220/380), toma de gas, etc</p>
+                </li>
+            </p>
+            <p>
+                <li><b>CODIGO</b>
+                    <p>Código único del producto</p>
+                </li>
+            </p>
+            <p>
+                <li><b>DETALLE</b>
+                    <p>Descripción del producto</p>
+                </li>
+            </p>
+        </ul>
+    {% endif %}
+    <div>
+
+    </div>>
+    <br/>
 
 {% endblock %}
