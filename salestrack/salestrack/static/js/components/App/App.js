@@ -9,7 +9,6 @@ const BUDGET_FORM_DOM_ELEMENT_NAME = 'react-app-budget-form';
 const MENU_DOM_ELEMENT_NAME = 'react-app-menu';
 
 const attachReactElementToDOM = (domElementName, reactElement) => {
-    debugger;
     const domElement = document.getElementById(domElementName);
     if (domElement) {
         ReactDOM.render(reactElement, document.getElementById(domElementName));
@@ -25,8 +24,3 @@ class App extends React.Component {
 }
 
 export default App;
-
-// const alertReportDomElement = document.getElementById('react-app-alert-report');
-// if (alertReportDomElement) {
-//     ReactDOM.render(<AlertsReport />, document.getElementById('react-app-alert-report'));
-// }

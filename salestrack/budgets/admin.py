@@ -17,7 +17,7 @@ class BudgetAdminForm(forms.ModelForm):
         model = Budget
         fields = [
             'date',
-            'numero',
+            'number',
             'client',
             'delivery_address',
             'paymentTerm',
@@ -28,7 +28,7 @@ class BudgetAdminForm(forms.ModelForm):
 
         labels = {
             'date': 'Date',
-            'numero': 'Número',
+            'number': 'Número',
             'client': 'Cliente',
             'delivery_address': 'Dirección de Entrega',
             'paymentTerm': 'Forma de Pago',
@@ -57,8 +57,8 @@ class BudgetDetailAdminInline(admin.TabularInline):
 class BudgetAdmin(admin.ModelAdmin):
     form = BudgetAdminForm
 
-    list_display = ['numero', 'date', 'client', 'shipping', 'status', 'discount']
-    list_display_links = ['numero', 'date']
+    list_display = ['id', 'number', 'date', 'client', 'shipping', 'status', 'discount']
+    list_display_links = ['number', 'date']
     list_editable = ('status', )
     ordering = ['date']
     search_fields = [ 'client__name']
@@ -69,7 +69,7 @@ class BudgetAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Presupuesto', {
             'fields': (
-                ('numero', 'date', 'status'),
+                ('number', 'date', 'status'),
 
             )
         }),

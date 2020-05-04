@@ -57,7 +57,7 @@ export default function MenuAppBar() {
   const brandAdminUrl = '/admin/products/brand/';
   const businessUnitAdminUrl = '/admin/products/business_unit/';
   // Not in Use:
-  const alertasUrl = '/budgets/budget_form';
+  const newBudget = '/budgets/budget_form?budgetId=0';
   const informeProyectoUrl = '/maquinas/horas_proyecto';
   const historiaMaquinaUrl = '/maquinas/historia_maquina';
   // Import options
@@ -124,10 +124,10 @@ export default function MenuAppBar() {
                             data-test="menuOption-AlertasDeMantenimiento"
                         >
                             <Link
-                                href={alertasUrl}
+                                href={newBudget}
                                 color="inherit"
                                 className={classes.link}
-                                onClick={displayClickedLink(alertasUrl)}
+                                onClick={displayClickedLink(newBudget)}
                             >
                                 Nuevo Presupuesto
                             </Link>

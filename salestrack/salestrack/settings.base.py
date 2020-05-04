@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'clients',
     'budgets',
     'salestrack',
-    'webpack_loader'
+    'webpack_loader',
+    'django_filters'
 ]
 
 MIDDLEWARE = [

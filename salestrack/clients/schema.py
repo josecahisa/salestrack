@@ -1,3 +1,6 @@
+"""
+This module define GraphQL schemas for Clients module database access
+"""
 import graphene
 
 from graphene_django.types import DjangoObjectType
@@ -23,6 +26,48 @@ class AddressType(DjangoObjectType):
     class Meta:
         model = Address
 
+class ClientMutation(graphene.Mutation):
+    class Arguments:
+        # Input arguments for this mutation
+        name = graphene.String(required=True)
+        id = graphene.ID()
+
+    client = graphene.Field(ClientType)
+
+    def mutate(self, info, name, id):
+        try:
+            client = Client.objects.get(pk=id)
+            client.name = name
+        except:
+            client = Client(
+                name=name
+            )
+
+        client.save()
+        return ClientMutation(client=client)
+
+class AddressMutation(graphene.Mutation):
+    class Arguments:
+        address = graphene.String(required=True)
+        clientId = graphene.ID(required=True)
+
+
+    address = graphene.Field(AddressType)
+
+    def mutate(self, info, clientId, address):
+        try:
+            client = Client.objects.get(pk=clientId)
+        except:
+            return
+
+        description=""
+        address = Address(address=address, description=description, client=client)
+        address.save()
+        return AddressMutation(address=address)
+
+class Mutation(graphene.ObjectType):
+    update_client = ClientMutation.Field()
+    update_address = AddressMutation.Field()
 
 class Query(object):
     all_cities = graphene.List(CityType)
