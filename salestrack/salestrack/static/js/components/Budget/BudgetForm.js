@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-// import { es } from 'date-fns/esm/locale'
 import DateFnsUtils from '@date-io/date-fns';
 import Grid from '@material-ui/core/Grid';
 import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker
 } from '@material-ui/pickers';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
 import Container from '@material-ui/core/Container';
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import Button from '@material-ui/core/Button';
@@ -166,8 +160,8 @@ export default function BudgetForm() {
 
         budgetApi.addBudgetDetail(budgetDetail)
             .then(updatedBudgetDetail => {
-                getBudgetData();
-                console.log('updatedBudgetDetail = ' + updatedBudgetDetail);
+                retrieveBudgetData();
+                console.log('updatedBudgetDetail = ' + JSON.stringify(updatedBudgetDetail));
             });
     }
 
@@ -244,58 +238,68 @@ export default function BudgetForm() {
         }
     }
 
+    const getBudgetId = () => {
+        if (id === 0) {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('budgetId')) {
+                return parseInt(urlParams.get('budgetId'));
+            } 
+        }
+
+        return id;
+    }
+
     const retrieveBudgetData = () => {
         logger.log('retrieving budget data...');
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('budgetId')) {
-            const budgetId = parseInt(urlParams.get('budgetId'));
-            if (budgetId !== 0) {
-                budgetApi.getBudgetById(budgetId)
-                    .then(budget =>  {
-                        logger.log(`budget retrieved = ${JSON.stringify(budget)}`);
+        const budgetId = getBudgetId();
+        if (budgetId !== 0) {
+            budgetApi.getBudgetById(budgetId)
+                .then(budget =>  {
+                    logger.log(`budget retrieved = ${JSON.stringify(budget)}`);
 
-                        if (budget) {
-                            if (budget.id) {
-                                setId(budget.id);
-                            }
-                            if (budget.number) {
-                                setNumber(budget.number);
-                            }
-
-                            if (budget.date) {
-                                setSelectedDate(budget.date);
-                            }
-
-                            if (budget.status) {
-                                setBudgetStatus(budget.status);
-                            }
-
-                            if (budget.paymentTerm) {
-                                setPaymentTerm(budget.paymentTerm);
-                            }
-
-                            if (budget.client) {
-                                setClient(budget.client);
-                            }
-
-                            if (budget.clientAddress) {
-                                setClientAddress(budget.clientAddress);
-                            }
-
-                            if (budget.shipping) {
-                                setShipping(budget.shipping);
-                            }
-
-                            if (budget.deliveryCity) {
-                                setDeliveryCity(budget.deliveryCity);
-                            }
-
-                            if (budget.budgetdetailSet) {
-                                setBudgetdetailSet(budget.budgetdetailSet);
-                            }
+                    if (budget) {
+                        if (budget.id) {
+                            setId(budget.id);
                         }
-                    })
-            }
+                        if (budget.number) {
+                            setNumber(budget.number);
+                        }
+
+                        if (budget.date) {
+                            const date = new Date(budget.date);
+                            setSelectedDate(date);
+                        }
+
+                        if (budget.status) {
+                            const budgetStatus = budgetStatusList.find( status => status.id === budget.status);
+                            setBudgetStatus(budgetStatus);
+                        }
+
+                        if (budget.paymentTerm) {
+                            setPaymentTerm(budget.paymentTerm);
+                        }
+
+                        if (budget.client) {
+                            setClient(budget.client);
+                        }
+
+                        if (budget.deliveryAddress) {
+                            setClientAddress(budget.deliveryAddress);
+                        }
+
+                        if (budget.shipping) {
+                            setShipping(budget.shipping);
+                        }
+
+                        if (budget.deliveryCity) {
+                            setDeliveryCity(budget.deliveryCity);
+                        }
+
+                        if (budget.budgetdetailSet) {
+                            setBudgetdetailSet(budget.budgetdetailSet);
+                        }
+                    }
+                })
         }
     }
 
@@ -315,12 +319,8 @@ export default function BudgetForm() {
     useEffect(() => {
         clientApi.getClients().then(clientOptions => {
             setClientOptions(clientOptions);
-            const firstObject = getObjectFromOptionsArray(client, clientOptions);
-            if (firstObject) {
-                setClient(firstObject);
-            }
         });
-    }, [client]);
+    }, []);
 
     // Fill client Address List
     useEffect(() => {
@@ -360,7 +360,8 @@ export default function BudgetForm() {
     logger.log(`client = ${JSON.stringify(client)} - options ${JSON.stringify(clientsOptions)}`);
     logger.log(`address = ${JSON.stringify(clientAddress)}`);
     logger.log(`paymentTerm = ${JSON.stringify(paymentTerm)}`);
-    logger.log(`shipping = ${shipping} - options ${JSON.stringify(shippingOptions)}`);
+    logger.log(`shipping = ${JSON.stringify(shipping)}`);
+    logger.log(`deliveryCity = ${JSON.stringify(deliveryCity)}`);
     logger.log('');
     return (
         <Container >
