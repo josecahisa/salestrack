@@ -19,3 +19,10 @@ export const budgetStatusList = [
     { name: 'Aprobado', id: 'A' },
     { name: 'Finalizado', id: 'F' }
 ]
+
+export class ProductRecord {
+    constructor() {
+        this.id = 0;
+        this.name = "";
+    }
+}

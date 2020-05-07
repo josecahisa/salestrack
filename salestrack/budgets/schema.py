@@ -143,22 +143,24 @@ class BudgetMutation(graphene.Mutation):
 
 
 class BudgetDetailMutation(graphene.Mutation):
+    budget_detail = graphene.Field(BudgetDetailType)
+
     class Arguments:
         # Input arguments for this mutation
         id = graphene.ID(required=True)
-        budget_id = graphene.ID(required=True)
+        budget_id = graphene.ID(required=False)
         product_id = graphene.ID(required=False)
-        quantity = graphene.Decimal(required=False)
-
-    budget_detail = graphene.Field(BudgetDetailType)
+        quantity = graphene.Int()
+        price = graphene.Decimal(required=False)
 
     def mutate(
             self,
             info,
             id,
-            budget_id,
+            budget_id=None,
             product_id=None,
-            quantity=None
+            quantity=None,
+            price=None
         ):
 
         already_exists = False
@@ -169,7 +171,11 @@ class BudgetDetailMutation(graphene.Mutation):
             budget_detail = BudgetDetail()
 
         if already_exists:
-            budget_detail.quantity = quantity
+            if quantity:
+                budget_detail.quantity = quantity
+            
+            if price:
+                budget_detail.price = price
         else:
             budget = Budget.objects.get(pk=budget_id)
             product = Product.objects.get(pk=product_id)
@@ -180,11 +186,19 @@ class BudgetDetailMutation(graphene.Mutation):
         budget_detail.save()
         return BudgetDetailMutation(budget_detail=budget_detail)
 
-    # budget = models.ForeignKey(Budget, on_delete=models.CASCADE, null=False)
-    # product = models.ForeignKey(Product, on_delete=models.PROTECT, null=False)
-    # quantity = models.IntegerField(verbose_name="cantidad", null=False, blank=False)
-    # price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Precio Venta", default=0, null=True, blank=True)
+class BudgetDetailDelete(graphene.Mutation):
+    result = graphene.Boolean()
+
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    def mutate(self, info, id):
+        budget_detail = BudgetDetail.objects.get(pk=id)
+        budget_detail.delete()
+        return BudgetDetailDelete(result=True)
+
 
 class Mutation(graphene.ObjectType):
     update_budget = BudgetMutation.Field()
     update_budget_detail = BudgetDetailMutation.Field()
+    delete_budget_detail = BudgetDetailDelete.Field()

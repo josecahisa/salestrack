@@ -8,6 +8,7 @@ import TextField from '@material-ui/core/TextField';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import ProductDetailLine from 'components/Budget/ProductDetailLine';
+import { ProductRecord } from 'components/Budget/BudgetModels';
 
 const filter = createFilterOptions();
 
@@ -29,17 +30,28 @@ const useStyles = makeStyles((theme) => ({
     },
     actionsContainer: {
         marginTop: '40px'
+    },
+    toggleIconSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    productSelectionLine : {
+        display: 'flex',
+        alignItems: 'center'
     }
 }));
 
 const FIELD_PRODUCT_SELECTION = 'productSelection';
 
 export default function BudgetFormProductsDetail(props) {
-    const { handleBack, handleNext, addBudgetDetail, budgetdetailSet } = props;
+    const { handleBack, handleNext, updateBudgetDetail, budgetdetailSet, deleteBudgetDetail } = props;
     const classes = useStyles();
     const spacing = 1;
+    const emptyProduct = new ProductRecord();
     
-    const [productSelection, setProductSelection] = useState(-1);
+    const [productSelection, setProductSelection] = useState(emptyProduct);
     const [productSelectionOptions, setProductSelectionOptions] = useState([]);
 
     const onFieldChange = (field, newValue) => {
@@ -55,12 +67,13 @@ export default function BudgetFormProductsDetail(props) {
     };
     
     const addProduct = () => {
-        let budgetDetail = {
+        const budgetDetail = {
             id: 0,
             productId: productSelection.id,
             quantity: "1"
         }
-        addBudgetDetail(budgetDetail);
+        updateBudgetDetail(budgetDetail);
+        setProductSelection(emptyProduct);
     }
 
     // setup product selection
@@ -70,10 +83,14 @@ export default function BudgetFormProductsDetail(props) {
         });
     }, []);
 
+    const handleProductAccesorySelection = (event, newProductAccesory) => {
+        setProductAccesorySelection(newProductAccesory);
+    };
+
     return (
         <div>
-            <Grid container spacing={spacing} alignItems='center' alignItems='center' >
-                <Grid item xs={10}>
+            <Grid container spacing={spacing} alignItems='center' alignItems='center' className={classes.productSelectionLine}>
+                <Grid item xs={9}>
                     <Autocomplete
                         options={productSelectionOptions}
                         getOptionLabel={(option) => {
@@ -102,7 +119,7 @@ export default function BudgetFormProductsDetail(props) {
                         }
                     />
                 </Grid>
-                <Grid item xs>
+                <Grid item xs={2}>
                     <Button onClick={addProduct} variant="contained" color="primary">
                         Agregar
                     </Button>
@@ -110,23 +127,23 @@ export default function BudgetFormProductsDetail(props) {
             </Grid>
             <div className={classes.productDetailTable}>
                 <Grid key="detailHeader" container spacing={spacing} alignItems='center' alignItems='center'>
-                    <Grid item xs={1}>
-                        <Typography variant="subtitle2" gutterBottom>
+                    <Grid item xs={1} container justify='center' alignItems='center'>
+                        <Typography variant="subtitle2">
                         Imagen
                         </Typography>
                     </Grid>
-                    <Grid item xs={8}>
-                        <Typography variant="subtitle2" gutterBottom>
+                    <Grid item xs={7}>
+                        <Typography variant="subtitle2">
                         Descripcion
                         </Typography>
                     </Grid>
-                    <Grid item xs={1}>
-                        <Typography variant="subtitle2" gutterBottom>
+                    <Grid item xs={1} container justify='center'>
+                        <Typography variant="subtitle2">
                         Cantidad
                         </Typography>
                     </Grid>
-                    <Grid item xs={2}>
-                        <Typography variant="subtitle2" gutterBottom>
+                    <Grid item xs={1} container justify='center'>
+                        <Typography variant="subtitle2">
                         Precio
                         </Typography>
                     </Grid>
@@ -138,9 +155,11 @@ export default function BudgetFormProductsDetail(props) {
                         key={detail.id}
                         budgetDetail={detail}
                         size1={1}
-                        size2={8}
+                        size2={7}
                         size3={1}
-                        size4={2} 
+                        size4={1}
+                        deleteBudgetDetail={deleteBudgetDetail}
+                        updateBudgetDetail={updateBudgetDetail}
                     />)
                 })}
             </div>

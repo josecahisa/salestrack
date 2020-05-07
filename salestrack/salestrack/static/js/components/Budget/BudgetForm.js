@@ -60,6 +60,16 @@ const getObjectFromOptionsArrayOrPickFirst = (objectId, optionsArray, idColumn =
     return objectId;
 }
 
+const updateQueryParam = (param, value) => {
+    if (history.pushState) {
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const pathName = window.location.pathname;
+        const newUrl = `${protocol}//${host}${pathName}?${param}=${value}`;
+        window.history.pushState({path: newUrl}, '', newUrl);
+    }
+}
+
 const FIELD_BUDGET_STATUS = 'budgetStatus';
 const FIELD_PAYMENT_TERM = 'paymentTerm';
 const FIELD_CLIENT = 'client';
@@ -152,16 +162,24 @@ export default function BudgetForm() {
                 console.log(updatedBudget);
                 setId(updatedBudget.id);
                 setNumber(updatedBudget.number);
+                updateQueryParam('budgetId', updatedBudget.id);
             });
     }
 
-    const addBudgetDetail = budgetDetail => {
+    const updateBudgetDetail = budgetDetail => {
         budgetDetail.budgetId = id;
 
-        budgetApi.addBudgetDetail(budgetDetail)
+        budgetApi.updateBudgetDetail(budgetDetail)
             .then(updatedBudgetDetail => {
                 retrieveBudgetData();
-                console.log('updatedBudgetDetail = ' + JSON.stringify(updatedBudgetDetail));
+            });
+    }
+
+    const deleteBudgetDetail = budgetDetailId => {
+        budgetApi.deleteBudgetDetail(budgetDetailId)
+            .then(response => {
+                // TODO: missing error handling
+                retrieveBudgetData();
             });
     }
 
@@ -639,8 +657,9 @@ export default function BudgetForm() {
                         <BudgetFormProductsDetail
                             handleBack={handleBack}
                             handleNext={handleNext}
-                            addBudgetDetail={addBudgetDetail}
+                            updateBudgetDetail={updateBudgetDetail}
                             budgetdetailSet={budgetdetailSet}
+                            deleteBudgetDetail={deleteBudgetDetail}
                         />
                     </StepContent>
                 </Step>

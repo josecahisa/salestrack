@@ -1,4 +1,4 @@
-import { GraphQLApi } from 'components/Api/GraphQLApi';
+import { GraphQLApi, DECIMAL, STRING, INT } from 'components/Api/GraphQLApi';
 import { Logger } from 'components/Utils/Logger';
 
 const logger = new Logger('ClientApi');
@@ -63,8 +63,16 @@ class BudgetApi extends GraphQLApi {
                     });
     }
 
-    addBudgetDetail = (budgetDetail) => {
-        const fieldsToUpdate = this.createMutationFieldsFromObject(budgetDetail);
+    updateBudgetDetail = (budgetDetail) => {
+        const fieldTypes = {
+            id: STRING,
+            price: DECIMAL,
+            quantity: INT
+        };
+
+        const newDetail = budgetDetail;
+        delete newDetail.product;
+        const fieldsToUpdate = this.createMutationFieldsFromObjectWithTypes(newDetail, fieldTypes);
 
         const budgetMutation = `mutation {
             updateBudgetDetail(${fieldsToUpdate}) {
@@ -75,6 +83,19 @@ class BudgetApi extends GraphQLApi {
         return this.getQueryRequest(budgetMutation)
                     .then( response => {
                         return response.body.data.updateBudgetDetail.budgetDetail;
+                    });
+    }
+
+    deleteBudgetDetail = (budgetDetailId) => {
+        const budgetMutation = `mutation {
+            deleteBudgetDetail(id:${budgetDetailId}) {
+                result
+            }
+        }`;
+
+        return this.getQueryRequest(budgetMutation)
+                    .then( response => {
+                        return response.body.data.deleteBudgetDetail.result;
                     });
     }
 

@@ -3,6 +3,10 @@ import { Logger } from 'components/Utils/Logger';
 
 const logger = new Logger('GraphQLApi');
 
+export const DECIMAL = 'decimal';
+export const STRING = 'string';
+export const INT = 'int';
+
 const getCookie = (name) => {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -66,6 +70,22 @@ export class GraphQLApi {
         return '';
     }
 
+    getValueDelimiterForType = (fieldType) => {
+        switch (fieldType) {
+            case DECIMAL:
+                return '"';
+        
+            case STRING:
+                return '"';
+
+            case INT:
+                return '';
+    
+            default:
+                return '';
+        }
+    }
+
     createMutationFieldsFromObject = objectArg => {
         let fieldsToUpdate = '';
 
@@ -73,6 +93,22 @@ export class GraphQLApi {
             const separator = fieldsToUpdate ? ', ' : '';
             const valueDelimiter = this.getValueDelimiter(value);
             fieldsToUpdate = fieldsToUpdate + separator + key + ':' + valueDelimiter + value + valueDelimiter;
+        });
+
+        console.log(fieldsToUpdate);
+        return fieldsToUpdate;
+    }
+
+    createMutationFieldsFromObjectWithTypes = (objectArg, fieldTypes) => {
+        let fieldsToUpdate = '';
+
+        Object.entries(objectArg).map(([key, value]) => {
+            const separator = fieldsToUpdate ? ', ' : '';
+
+            if (fieldTypes[key]) {
+                const valueDelimiter = this.getValueDelimiterForType(fieldTypes[key]);
+                fieldsToUpdate = fieldsToUpdate + separator + key + ':' + valueDelimiter + value + valueDelimiter;
+            }
         });
 
         console.log(fieldsToUpdate);
