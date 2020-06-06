@@ -24,6 +24,8 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import BudgetFormProductsDetail from 'components/Budget/BudgetFormProductsDetail';
+import CommercialTerms from 'components/Budget/CommercialTerms';
+import LinearProgress from '@material-ui/core/LinearProgress';  
 
 const filter = createFilterOptions();
 const logger = new Logger('BudgetForm');
@@ -37,6 +39,10 @@ const useStyles = makeStyles((theme) => ({
       marginRight: theme.spacing(1),
       width: '25ch',
     },
+    linearProgressArea: {
+        height: '5px',
+        marginTop: '5px'
+    }
 }));
 
 const getObjectFromOptionsArray = (objectId, optionsArray, idColumn = 'id') => {
@@ -76,6 +82,8 @@ const FIELD_CLIENT = 'client';
 const FIELD_CLIENT_ADDRESS = 'clientAddress';
 const FIELD_SHIPPING = 'shipping';
 const FIELD_DELIVERY_CITY = 'deliveryCity';
+export const FIELD_COMMERCIAL_TERMS = 'commercialTerms';
+export const FIELD_DISCOUNT = 'discount';
 
 function getSteps() {
     return ['Select campaign settings', 'Create an ad group', 'Create an ad'];
@@ -100,6 +108,10 @@ export default function BudgetForm() {
     const [deliveryCityOptions, setDeliveryCityOptions] = useState([]);
     const [activeStep, setActiveStep] = React.useState(0);
     const [budgetdetailSet, setBudgetdetailSet] = React.useState([]);
+    const [discount, setDiscount] = React.useState(0);
+    const [commercialTerms, setCommercialTerms] = React.useState("");
+    const [updatingData, setUpdatingData] = React.useState(false);
+    const [pendingUpdates, setPendingUpdates] = React.useState(false);
     const steps = getSteps();
 
     const handleNext = () => {
@@ -150,19 +162,44 @@ export default function BudgetForm() {
             budget['deliveryAddressId'] = clientAddress.id;
         }
 
+        if (commercialTerms) {
+            budget.commercialTerms = commercialTerms;
+        }
+
         return budget;
     }
 
     const updateBudget = (field, value) => {
-        let budget = getBudgetData();
-        budget[field] = value;
+        setPendingUpdates(true);
 
-        budgetApi.updateBudget(budget)
-            .then(updatedBudget => {
-                console.log(updatedBudget);
-                setId(updatedBudget.id);
-                setNumber(updatedBudget.number);
-                updateQueryParam('budgetId', updatedBudget.id);
+        // Prevent calling the Api again while another request is already running
+        if (!updatingData) {
+            let budget = getBudgetData();
+            budget[field] = value;
+    
+            setUpdatingData(true);
+            budgetApi.updateBudget(budget)
+                .then(updatedBudget => {
+                    setUpdatingData(false);
+                    setPendingUpdates(false);
+                    console.log(updatedBudget);
+                    setId(updatedBudget.id);
+                    setNumber(updatedBudget.number);
+                    updateQueryParam('budgetId', updatedBudget.id);
+                })
+                .catch(error => {
+                    setUpdatingData(false);
+                    console.error(error);
+                });
+        }
+    }
+
+    const addBudgetDetail = budgetDetail => {
+        budgetDetail.budgetId = id;
+
+        budgetApi.addBudgetDetail(budgetDetail)
+            .then(budgetDetailAdded => {
+                retrieveBudgetData();
             });
     }
 
@@ -241,6 +278,16 @@ export default function BudgetForm() {
                 setDeliveryCity(newValue);
                 updateBudget('deliveryCityId', newValue.id);
                 break;
+
+            case FIELD_DISCOUNT:
+                setDiscount(newValue);
+                updateBudget('discount', newValue);
+                break;
+
+            case FIELD_COMMERCIAL_TERMS:
+                setCommercialTerms(newValue);
+                updateBudget('commercialTerms', newValue);
+                break;
         }
     };
 
@@ -316,6 +363,14 @@ export default function BudgetForm() {
                         if (budget.budgetdetailSet) {
                             setBudgetdetailSet(budget.budgetdetailSet);
                         }
+
+                        if (budget.discount) {
+                            setDiscount(budget.discount);
+                        }
+
+                        if (budget.commercialTerms) {
+                            setCommercialTerms(decodeURIComponent(budget.commercialTerms));   
+                        }
                     }
                 })
         }
@@ -383,6 +438,9 @@ export default function BudgetForm() {
     logger.log('');
     return (
         <Container >
+            <div className={classes.linearProgressArea} >
+            { updatingData && <LinearProgress /> }
+            </div>
             <Stepper activeStep={activeStep} orientation="vertical">
                 <Step key="step1">
                     <StepLabel>
@@ -399,6 +457,7 @@ export default function BudgetForm() {
                                             value={number}
                                             fullWidth
                                             margin="normal"
+                                            disabled
                                             InputLabelProps={{
                                                 shrink: true,
                                             }}
@@ -561,19 +620,6 @@ export default function BudgetForm() {
                                         />
                                     </Grid>
 
-                                    <Grid item xs={2}>
-                                        <TextField
-                                            id="discount"
-                                            label="Descuento"
-                                            placeholder="Descuento"
-                                            fullWidth
-                                            margin="normal"
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                        />
-                                    </Grid>
-
                                     <Grid item xs={3}>
                                         <Autocomplete
                                             options={shippingOptions}
@@ -658,9 +704,26 @@ export default function BudgetForm() {
                             handleBack={handleBack}
                             handleNext={handleNext}
                             updateBudgetDetail={updateBudgetDetail}
-                            budgetdetailSet={budgetdetailSet}
                             deleteBudgetDetail={deleteBudgetDetail}
+                            addBudgetDetail={addBudgetDetail}
+                            onFieldChange={onFieldChange}
+                            budgetdetailSet={budgetdetailSet}
+                            discount={discount}
                         />
+                    </StepContent>
+                </Step>
+                <Step key="step3">
+                    <StepLabel>Condiciones Comerciales</StepLabel>
+                    <StepContent>
+                        <CommercialTerms
+                            handleBack={handleBack}
+                            handleNext={handleNext}
+                            onFieldChange={onFieldChange}
+                            commercialTerms={commercialTerms}
+                            budgetId={id}
+                        >
+
+                        </CommercialTerms>
                     </StepContent>
                 </Step>
             </Stepper>

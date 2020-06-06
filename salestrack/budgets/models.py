@@ -64,6 +64,7 @@ class Budget(models.Model):
         blank=True,
         verbose_name="Ciudad de Entrega"
     )
+    commercial_terms = models.TextField(verbose_name="Terminos Comerciales", blank=True, default="")
 
     def __str__(self):
         return '{0} - {1}'.format(self.date, self.client.name)

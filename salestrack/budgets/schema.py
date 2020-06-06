@@ -84,6 +84,7 @@ class BudgetMutation(graphene.Mutation):
         delivery_city_id = graphene.ID(required=False)
         discount = graphene.Decimal(required=False)
         id = graphene.ID(required=False)
+        commercial_terms = graphene.String(required=False)
 
     budget = graphene.Field(BudgetType)
 
@@ -98,7 +99,8 @@ class BudgetMutation(graphene.Mutation):
             shipping_id=None,
             status=None,
             delivery_city_id=None,
-            discount=None
+            discount=None,
+            commercial_terms=None
         ):
 
         try:
@@ -108,35 +110,30 @@ class BudgetMutation(graphene.Mutation):
 
         if date is not None:
             budget.date = date
-            print("date received")
 
         if client_id is not None:
             budget.set_client(client_id)
-            print("client_id received")
 
         if delivery_address_id is not None:
             budget.set_delivery_address(delivery_address_id)
-            print("delivery_address_id received")
 
         if payment_term_id is not None:
             budget.payment_term_id = payment_term_id
-            print("payment_term_id received")
 
         if shipping_id is not None:
             budget.shipping_id = shipping_id
-            print("shipping_id received")
 
         if status is not None:
             budget.status = status
-            print("status received")
 
         if delivery_city_id is not None:
             budget.delivery_city_id = delivery_city_id
-            print("delivery_city_id received")
 
         if discount is not None:
             budget.discount = discount
-            print("discount received")
+
+        if commercial_terms is not None:
+            budget.commercial_terms = commercial_terms
 
         budget.save()
         return BudgetMutation(budget=budget)
@@ -182,6 +179,7 @@ class BudgetDetailMutation(graphene.Mutation):
             budget_detail.budget = budget
             budget_detail.product = product
             budget_detail.quantity = quantity
+            budget_detail.price = product.wholesale_price
 
         budget_detail.save()
         return BudgetDetailMutation(budget_detail=budget_detail)

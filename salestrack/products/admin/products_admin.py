@@ -38,7 +38,7 @@ class ProductAdminForm(forms.ModelForm):
             'product_type', 'product_code', 'description', 'business_unit', 
             # 'product_type__brand', 
             'classification', 'category', 'status', 'photo', 'is_accesory',
-            'free_accesories'
+            'free_accesories', 'wholesale_price'
         ]
 
         labels = {
@@ -100,7 +100,7 @@ class ProductAdmin(admin.ModelAdmin):
                     'status',
                     'is_accesory'
                 ),
-                ('description'),
+                ('description', 'wholesale_price'),
                 ('free_accesories')
             )
         }),

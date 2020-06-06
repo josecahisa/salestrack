@@ -9,6 +9,8 @@ import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import ProductDetailLine from 'components/Budget/ProductDetailLine';
 import { ProductRecord } from 'components/Budget/BudgetModels';
+import { FIELD_DISCOUNT } from 'components/Budget/BudgetForm';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const filter = createFilterOptions();
 
@@ -40,13 +42,31 @@ const useStyles = makeStyles((theme) => ({
     productSelectionLine : {
         display: 'flex',
         alignItems: 'center'
+    },
+    totals: {
+        marginTop: '40px'
+    },
+    lastButtonsSection: {
+        marginTop: '40px'
+    },
+    discountFormat: {
+        color: 'red'
     }
 }));
 
 const FIELD_PRODUCT_SELECTION = 'productSelection';
 
 export default function BudgetFormProductsDetail(props) {
-    const { handleBack, handleNext, updateBudgetDetail, budgetdetailSet, deleteBudgetDetail } = props;
+    const {
+        handleBack,
+        handleNext,
+        updateBudgetDetail,
+        budgetdetailSet,
+        deleteBudgetDetail,
+        addBudgetDetail,
+        onFieldChange,
+        discount
+    } = props;
     const classes = useStyles();
     const spacing = 1;
     const emptyProduct = new ProductRecord();
@@ -54,7 +74,7 @@ export default function BudgetFormProductsDetail(props) {
     const [productSelection, setProductSelection] = useState(emptyProduct);
     const [productSelectionOptions, setProductSelectionOptions] = useState([]);
 
-    const onFieldChange = (field, newValue) => {
+    const onProductoSelectionChange = (field, newValue) => {
         if (!newValue) {
             return;
         }
@@ -72,7 +92,7 @@ export default function BudgetFormProductsDetail(props) {
             productId: productSelection.id,
             quantity: "1"
         }
-        updateBudgetDetail(budgetDetail);
+        addBudgetDetail(budgetDetail);
         setProductSelection(emptyProduct);
     }
 
@@ -86,6 +106,15 @@ export default function BudgetFormProductsDetail(props) {
     const handleProductAccesorySelection = (event, newProductAccesory) => {
         setProductAccesorySelection(newProductAccesory);
     };
+
+    let budgetTotal = 0;
+    budgetdetailSet.map(detail => {
+        const quantity = detail.quantity ? detail.quantity : 1;
+        budgetTotal = budgetTotal + quantity * detail.price;
+    });
+
+    const budgetDiscountApplied = discount && discount > 0 ? budgetTotal * discount / 100 : 0;
+    const budgetTotalWithDiscount = budgetTotal - budgetDiscountApplied;
 
     return (
         <div>
@@ -107,7 +136,7 @@ export default function BudgetFormProductsDetail(props) {
                         )}                        
                         value={productSelection}
                         onChange={(event, newValue) => {
-                            onFieldChange(FIELD_PRODUCT_SELECTION, newValue);
+                            onProductoSelectionChange(FIELD_PRODUCT_SELECTION, newValue);
                         }}
                         id="product-selection-id"
                         renderInput={(params) => 
@@ -163,8 +192,48 @@ export default function BudgetFormProductsDetail(props) {
                     />)
                 })}
             </div>
+            <div className={classes.totals} >
+                <Grid key="detailSubTotalCal" container spacing={spacing} alignItems='center' alignItems='center'>
+                    <Grid xs={7} />
+                    <Grid xs={1} > <Typography variant="subtitle2"> Subtotal: </Typography>  </Grid>
+                    <Grid xs={1}/>
+                    <Grid xs={1} container justify='flex-end' > {budgetTotal} </Grid>
+                </Grid>
+                <Grid key="detailDiscount" container spacing={spacing} alignItems='center' alignItems='center'>
+                    <Grid xs={7} />
+                    <Grid xs={1} > <Typography variant="subtitle2"> Descuento: </Typography>  </Grid>
+                    <Grid item xs={1}>
+                        <TextField
+                            id="discount"
+                            placeholder="Descuento"
+                            fullWidth
+                            margin="normal"
+                            value={discount}
+                            onChange={(event) => {
+                                onFieldChange(FIELD_DISCOUNT, event.target.value);
+                            }}
+                            InputProps={{
+                                endAdornment: (<InputAdornment position="end"> % </InputAdornment>)
+                            }}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid xs={1} container justify='flex-end' className={classes.discountFormat} > 
+                        ( {budgetDiscountApplied} )
+                    </Grid>
+                </Grid>
+                <Grid key="detailTotal" container spacing={spacing} alignItems='center' alignItems='center'>
+                    <Grid xs={7} />
+                    <Grid xs={1} > <Typography variant="subtitle2"> Total: </Typography>  </Grid>
+                    <Grid xs={1}/>
+                    <Grid xs={1} container justify='flex-end' > {budgetTotalWithDiscount} </Grid>
+                </Grid>
+
+            </div>
             <div className={classes.actionsContainer}>
-                <div>
+                <div className={classes.lastButtonsSection}>
                     <Button
                         onClick={handleBack}
                         className={classes.button}
