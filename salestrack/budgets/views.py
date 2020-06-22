@@ -15,6 +15,14 @@ from PIL import Image
 from reportlab.pdfbase import pdfmetrics
 from enum import Enum
 from reportlab.lib.colors import Color, black, blue, red
+import locale
+from urllib.parse import unquote
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+
+locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')
+
+
 
 DEBUG_PRINT_LEVEL = 0
 
@@ -22,9 +30,9 @@ A4_WIDTH = 590
 A4_HEIGHT = 840
 
 MAIN_RECT_W = 540
-MAIN_RECT_H = 750
-MAIN_RECT_X = 25
-MAIN_RECT_Y = 45
+MAIN_RECT_H = 790
+MAIN_RECT_X = 30
+MAIN_RECT_Y = 30
 
 HEADER_H = 150
 
@@ -83,6 +91,12 @@ class Rectangle:
         x = kwargs.get('x', 0)
         y = kwargs.get('y', 0)
         self.top_left_point = Point(x, y, "Top left point")
+        self.__all_lines_visible = True
+        self.__draw_top_line = False
+        self.__draw_bottom_line = False
+        self.__draw_left_line = False
+        self.__draw_right_line = False
+        self.line_width = 0.25
 
         if 'name' in kwargs:
             self.name = kwargs.get('name')
@@ -101,6 +115,31 @@ class Rectangle:
             self.width = abs(x2 - x)
             self.height = abs(y2 - y)
 
+        if 'draw_top_line' in kwargs:
+            self.all_lines_visible = False
+            self.draw_top_line = kwargs.get('draw_top_line')
+
+        if 'draw_bottom_line' in kwargs:
+            self.all_lines_visible = False
+            self.draw_bottom_line = kwargs.get('draw_bottom_line')
+
+        if 'draw_left_line' in kwargs:
+            self.all_lines_visible = False
+            self.draw_left_line = kwargs.get('draw_left_line')
+
+        if 'draw_right_line' in kwargs:
+            self.all_lines_visible = False
+            self.draw_right_line = kwargs.get('draw_right_line')
+
+        if 'line_width' in kwargs:
+            self.line_width = kwargs.get('line_width')
+
+        self.top_right_point = Point(
+            self.top_left_point.x + self.width,
+            self.top_left_point.y,
+            "Top right point"
+        )
+
         self.bottom_right_point = Point(
             self.top_left_point.x + self.width,
             self.top_left_point.y - self.height,
@@ -116,19 +155,56 @@ class Rectangle:
         self.x_center = self.top_left_point.x + self.width / 2
         self.y_center = self.top_left_point.y - self.height / 2
 
-        if 'backgroundcolor' in kwargs:
-            self.back_ground_color = kwargs.get('backgroundcolor')
+        if 'back_ground_color' in kwargs:
+            self.back_ground_color = kwargs.get('back_ground_color')
         else:
             self.back_ground_color = None
 
         self.print_level = kwargs.get('printlevel', 0)
 
+    @property
+    def draw_right_line(self):
+        return self.__draw_right_line
+
+    @draw_right_line.setter
+    def draw_right_line(self, draw_right_line):
+        self.__draw_right_line = draw_right_line
+        self.__all_lines_visible = False
+
+    @property
+    def draw_top_line(self):
+        return self.__draw_top_line
+
+    @draw_top_line.setter
+    def draw_top_line(self, draw_top_line):
+        self.__draw_top_line = draw_top_line
+        self.__all_lines_visible = False
+
+    @property
+    def draw_bottom_line(self):
+        return self.__draw_bottom_line
+
+    @draw_bottom_line.setter
+    def draw_bottom_line(self, draw_bottom_line):
+        self.__draw_bottom_line = draw_bottom_line
+        self.__all_lines_visible = False
+
+    @property
+    def draw_left_line(self):
+        return self.__draw_left_line
+
+    @draw_left_line.setter
+    def draw_left_line(self, draw_left_line):
+        self.__draw_left_line = draw_left_line
+        self.__all_lines_visible = False
+
+
     def debug(self, indent):
         print("{0}rectangle {1} y-center ={2}".format(indent, self.name, self.y_center))
         indent = indent + "    "
-        self.top_left_point.debug(indent)
-        self.bottom_left_point.debug(indent)
-        self.bottom_right_point.debug(indent)
+        # self.top_left_point.debug(indent)
+        # self.bottom_left_point.debug(indent)
+        # self.bottom_right_point.debug(indent)
 
     def apply_background_color(self, pdf_object):
         pdf_object.setFillColorRGB(
@@ -139,30 +215,13 @@ class Rectangle:
 
     def draw(self, pdf_object, print_level=0):
         fill_rect = 0
+        pdf_object.setLineWidth(self.line_width)
+
         if (self.back_ground_color):
             self.apply_background_color(pdf_object)
             fill_rect = 1
 
-        print_level = max(self.print_level, print_level)
-        if print_level >= DEBUG_PRINT_LEVEL:
-            pdf_object.drawString(
-                self.top_left_point.x,
-                self.top_left_point.y,
-                "TL"
-            )
-
-            pdf_object.drawString(
-                self.bottom_left_point.x,
-                self.bottom_left_point.y,
-                "BL"
-            )
-
-            pdf_object.drawString(
-                self.bottom_right_point.x,
-                self.bottom_right_point.y,
-                "BR"
-            )
-
+        if self.__all_lines_visible:
             pdf_object.rect(
                 self.bottom_left_point.x,
                 self.bottom_left_point.y,
@@ -170,6 +229,68 @@ class Rectangle:
                 self.height,
                 fill=fill_rect
             )
+        else:
+            if (self.back_ground_color):
+                pdf_object.rect(
+                    self.bottom_left_point.x,
+                    self.bottom_left_point.y,
+                    self.width,
+                    self.height,
+                    stroke=0,
+                    fill=fill_rect
+                )
+
+            if self.__draw_bottom_line:
+                pdf_object.line(
+                    self.bottom_left_point.x,
+                    self.bottom_left_point.y,
+                    self.bottom_right_point.x,
+                    self.bottom_right_point.y
+                )
+
+            if self.__draw_right_line:
+                pdf_object.line(
+                    self.top_right_point.x,
+                    self.top_right_point.y,
+                    self.bottom_right_point.x,
+                    self.bottom_right_point.y
+                )
+
+            if self.__draw_left_line:
+                pdf_object.line(
+                    self.top_left_point.x,
+                    self.top_left_point.y,
+                    self.bottom_left_point.x,
+                    self.bottom_left_point.y
+                )
+
+            if self.__draw_top_line:
+                pdf_object.line(
+                    self.top_left_point.x,
+                    self.top_left_point.y,
+                    self.top_right_point.x,
+                    self.top_right_point.y
+                )
+
+        print_level = max(self.print_level, print_level)
+        # if print_level >= DEBUG_PRINT_LEVEL:
+        #     pdf_object.drawString(
+        #         self.top_left_point.x,
+        #         self.top_left_point.y,
+        #         "TL"
+        #     )
+
+        #     pdf_object.drawString(
+        #         self.bottom_left_point.x,
+        #         self.bottom_left_point.y,
+        #         "BL"
+        #     )
+
+        #     pdf_object.drawString(
+        #         self.bottom_right_point.x,
+        #         self.bottom_right_point.y,
+        #         "BR"
+        #     )
 
     def get_text_line_from_top(self, margin, height, style, padding=0):
         text_line = Text_Line(
@@ -211,12 +332,12 @@ class Text_Area:
         self.print_level = print_level
 
     def get_centered_y_position(self):
-        print("font_height = {0}".format(self.style.font_height))
+        # print("font_height = {0}".format(self.style.font_height))
         return self.bounding_rect.y_center - (self.style.font_height / 2)
 
     def write_right_alignment(self, pdf_object, text):
         x_pos = self.x + self.width - self.padding_right
-        print("write right aligned text - text_y = {0}".format(self.text_y))
+        # print("write right aligned text - text_y = {0}".format(self.text_y))
         pdf_object.drawRightString(x_pos, self.text_y, text)
         # pdf_object.drawRightString(200, self.bounding_rect.y_center, "1")
         # pdf_object.drawRightString(220, self.bounding_rect.top_left_point.y, "2")
@@ -236,6 +357,12 @@ class Text_Area:
         if text is not None and self.print_level >= DEBUG_PRINT_LEVEL:
             self.style.apply_style(pdf_object)
             self.write_functions[self.alignment](pdf_object, text)
+
+    def draw_image(self, pdf_object, image_file, image_size):
+        x_pos = self.bounding_rect.x_center - (image_size / 2)
+        y_pos = self.bounding_rect.top_left_point.y - image_size - 2
+        print (settings.BASE_DIR + image_file)
+        pdf_object.drawImage(settings.BASE_DIR + image_file, x_pos, y_pos, image_size, image_size)
 
     def draw_rect(self, pdf_object, print_level=0):
         self.bounding_rect.draw(pdf_object, print_level)
@@ -284,7 +411,7 @@ class Text_Line:
         return self.bounding_rect.y_center - (self.style.font_height / 2)
 
     def get_next_line(self):
-        return Text_Line(
+        next_line = Text_Line(
             self.x,
             self.y - self.height,
             self.width,
@@ -292,6 +419,11 @@ class Text_Line:
             self.style,
             self.padding
         )
+        next_line.padding_left = self.padding_left
+        next_line.padding_right = self.padding_right
+        next_line.padding_top = self.padding_top
+        next_line.padding_bottom = self.padding_bottom
+        return next_line 
 
     def get_text_area_by_position(self, x1, x2, alignment=Alignment.LEFT):
         width = abs(x2 - x1)
@@ -329,7 +461,6 @@ class Text_Line:
         self.bounding_rect.draw(pdf_object, print_level)
 
 
-
 COLOR_BLUE_HEADER = Color(53, 93, 129, alpha=1)
 COLOR_GRAY_1 = Color(240, 240, 240, alpha=1)
 
@@ -338,7 +469,8 @@ STYLE_TITLE_1 = Text_Style("Helvetica", 20, black)
 STYLE_BOLD_TITLE_2 = Text_Style("Helvetica-Bold", 10, black)
 STYLE_BOLD_TITLE_1 = Text_Style("Helvetica-Bold", 16, black)
 STYLE_DATA_LABEL = Text_Style("Helvetica-Bold", 8, black)
-
+STYLE_PRODUCT_HEADER = Text_Style("Helvetica-Bold", 7, black)
+STYLE_PRODUCT_DATA = Text_Style("Helvetica", 8, black)
 
 @login_required
 def budget_form(request):
@@ -355,7 +487,6 @@ def drawCenteredImage(pdf_object, image_file):
     width, height = im.size
     x1 = A4_WIDTH / 2 - width / 2
     y1 = A4_HEIGHT / 2 - height / 2
-    print("x1 = {0} y1 = {1}".format(x1, y1))
     pdf_object.drawImage(image_file, x1, y1)
 
 def setGrayBackGround(pdf_object):
@@ -373,6 +504,7 @@ def drawHeader(pdf_object, topLeftX, topLeftY, bottomRightX, bottomRightY, budge
     TOP_MARGIN = 10
     TEXT_H = 10
     BUDGET_TOP_MARGIN = 30
+    PRODUCT_DETAIL_H = 500
 
     # Draw Header section line division
     x1 = topLeftX
@@ -447,6 +579,8 @@ def drawHeader(pdf_object, topLeftX, topLeftY, bottomRightX, bottomRightY, budge
     
     date_line_y = date_vendor_divisor_y + distance_to_center_y
     pdf_object.drawRightString(date_vendor_table_horizontal_x - LEFT_MARGIN / 2, date_line_y, "Fecha:")
+    formatted_date_str = budget.date.strftime('%d %b %Y')
+    pdf_object.drawString(date_vendor_table_horizontal_x + LEFT_MARGIN / 2, date_line_y, formatted_date_str)
 
     #Seller Line
     date_line_y = date_vendor_divisor_y - distance_to_center_y - font_h
@@ -472,30 +606,69 @@ def drawHeader(pdf_object, topLeftX, topLeftY, bottomRightX, bottomRightY, budge
         Alignment.RIGHT
     )
     header_line_4_cuit.write_text(pdf_object, HEADER_LINE_CUIT)
-    header_line_4.draw_rect(pdf_object, 1)
 
     header_line_5 = header_line_4.get_next_line()
     header_line_5.write_text(pdf_object, LEFT_MARGIN, HEADER_LINE_WEB)
-    header_line_5.draw_rect(pdf_object, 1)
     header_line_iva = header_line_5.get_text_area_by_position(
         header_line_5.x,
         x_center,
         Alignment.RIGHT
     )
     header_line_iva.write_text(pdf_object, HEADER_LINE_IVA)
-    header_line_iva.draw_rect(pdf_object, 1)
 
     # Draw the section that contains all the client data
-    data_section_y = header_line_5.get_next_line().y
-    #  - TEXT_H
+    data_section_y = header_line_5.get_next_line().y - 10
     data_section_y2 = topLeftY - HEADER_H
 
-    draw_header_data_section(pdf_object, topLeftX, data_section_y, bottomRightX, data_section_y2, budget)
+    draw_header_data_section(
+        pdf_object,
+        topLeftX,
+        data_section_y,
+        bottomRightX,
+        data_section_y2,
+        budget
+    )
+
+    product_detail_top_left_x = topLeftX
+    product_detail_top_left_y = data_section_y2
+    product_detail_bottom_right_x = bottomRightX
+    product_detail_bottom_right_y = data_section_y2 - PRODUCT_DETAIL_H
+
+    product_detail_section(
+        pdf_object,
+        product_detail_top_left_x,
+        product_detail_top_left_y,
+        product_detail_bottom_right_x,
+        product_detail_bottom_right_y,
+        budget
+    )
+
+    footer_top_left_x = topLeftX
+    footer_top_left_y = product_detail_bottom_right_y
+    footer_bottom_right_x = bottomRightX
+    footer_bottom_right_y = bottomRightY
+
+    footer_section(
+        pdf_object,
+        footer_top_left_x,
+        footer_top_left_y,
+        footer_bottom_right_x,
+        footer_bottom_right_y,
+        budget
+    )
 
 
-def draw_header_data_section(pdf_object, top_left_x, data_section_y, bottom_right_x, data_section_y2, budget):
+def draw_header_data_section(
+        pdf_object,
+        top_left_x,
+        data_section_y,
+        bottom_right_x,
+        data_section_y2,
+        budget
+):
     HEADER_LINE_H = 12
-    LABEL_WIDTH = 75
+    LEFT_LABEL_WIDTH = 60
+    RIGHT_LABEL_WIDTH = 95
 
     x_center = top_left_x + ( bottom_right_x - top_left_x ) / 2
 
@@ -504,85 +677,433 @@ def draw_header_data_section(pdf_object, top_left_x, data_section_y, bottom_righ
         y=data_section_y,
         x2=bottom_right_x,
         y2=data_section_y2,
-        name='Header Data Section'
-        # backgroundcolor=COLOR_GRAY_1
+        name='Header Data Section',
+        draw_top_line=True,
+        draw_left_line=True,
+        draw_right_line=True,
+        back_ground_color=COLOR_GRAY_1
     )
 
     header_data_rect.draw(pdf_object)
     data_line_1 = header_data_rect.get_text_line_from_top(0, HEADER_LINE_H, STYLE_DATA_LABEL)
-    client_label = data_line_1.get_text_area_by_width(width=LABEL_WIDTH, alignment=Alignment.RIGHT)
+    data_line_1.bounding_rect.draw_bottom_line = True
+    data_line_1.draw_rect(pdf_object)
+    data_line_1.padding_left = 3
+    data_line_1.padding_right = 3
+
+    client_label = data_line_1.get_text_area_by_width(width=LEFT_LABEL_WIDTH, alignment=Alignment.RIGHT)
     client_label.print_level = 1
     client_label.write_text(pdf_object, "CLIENTE:")
-    # client_label.draw_rect(pdf_object, 1)
-    client_label.debug()
+    client_label.bounding_rect.draw_right_line = True
+    client_label.bounding_rect.draw(pdf_object)
 
-    data_section_width = x_center - top_left_x - LABEL_WIDTH
+    data_section_width = x_center - top_left_x - LEFT_LABEL_WIDTH
+
     client_data = data_line_1.get_text_area_by_width(
         previous_text_area=client_label,
-        # x=client_label.bounding_rect.bottom_right_point.x,
         width=data_section_width
     )
     client_data.write_text(pdf_object, budget.client.name)
+    client_data.bounding_rect.draw_right_line = True
+    client_data.bounding_rect.draw(pdf_object)
 
     phone_label = data_line_1.get_text_area_by_width(
         previous_text_area=client_data,
-        width=LABEL_WIDTH,
+        width=RIGHT_LABEL_WIDTH,
         alignment=Alignment.RIGHT
     )
     phone_label.write_text(pdf_object, "TELEFONO:")
-    # phone_label.draw_rect(pdf_object, 1)
+    phone_label.bounding_rect.draw_right_line = True
+    phone_label.bounding_rect.draw(pdf_object)
+
     phone_data = data_line_1.get_text_area_by_width(
         previous_text_area=phone_label,
         width=data_section_width
     )
-    # phone_data.write_text(pdf_object, budget)
-    # phone_data.draw_rect(pdf_object, 1)
 
     data_line_2 = data_line_1.get_next_line()
-    nit_label = data_line_2.get_text_area_by_width(width=LABEL_WIDTH, alignment=Alignment.RIGHT)
+    data_line_2.bounding_rect.draw_bottom_line = True
+    data_line_2.draw_rect(pdf_object)
+    nit_label = data_line_2.get_text_area_by_width(width=LEFT_LABEL_WIDTH, alignment=Alignment.RIGHT)
     nit_label.write_text(pdf_object, "NIT/CI:")
+    nit_label.bounding_rect.draw_right_line = True
+    nit_label.bounding_rect.draw(pdf_object)
 
     nit_data = data_line_2.get_text_area_by_width(
         previous_text_area=nit_label,
         width=data_section_width
     )
     nit_data.write_text(pdf_object, budget.client.nit)
+    nit_data.bounding_rect.draw_right_line = True
+    nit_data.bounding_rect.draw(pdf_object)
+    nit_data.write_text(pdf_object, budget.client.nit)
 
     payment_term_label = data_line_2.get_text_area_by_width(
         previous_text_area=nit_data,
-        width=LABEL_WIDTH,
+        width=RIGHT_LABEL_WIDTH,
         alignment=Alignment.RIGHT
     )
     payment_term_label.write_text(pdf_object, "FORMA DE PAGO:")
+    payment_term_label.bounding_rect.draw_right_line = True
+    payment_term_label.bounding_rect.draw(pdf_object)
+
     payment_term_data = data_line_2.get_text_area_by_width(
         previous_text_area=payment_term_label,
         width=data_section_width
     )
+    if (budget.paymentTerm):
+        payment_term_data.write_text(pdf_object, budget.paymentTerm.name)
+
     if budget.paymentTerm:
         payment_term_data.write_text(budget.paymentTerm.name)
 
     #line 3
     data_line_3 = data_line_2.get_next_line()
+    data_line_3.bounding_rect.draw_bottom_line = True
+    data_line_3.draw_rect(pdf_object)
     address_label = data_line_3.get_text_area_by_width(
-        width=LABEL_WIDTH,
+        width=LEFT_LABEL_WIDTH,
         alignment=Alignment.RIGHT
     )
     address_label.write_text(pdf_object, "DIRECCIÓN:")
+    address_label.bounding_rect.draw_right_line = True
+    address_label.bounding_rect.draw(pdf_object)
+
     address_data = data_line_3.get_text_area_by_width(
         previous_text_area=address_label,
         width=data_section_width
     )
-    address_data.write_text(pdf_object, "direccion del susodicho")
+    address_data.write_text(pdf_object, budget.delivery_address.address)
+    address_data.bounding_rect.draw_right_line = True
+    address_data.bounding_rect.draw(pdf_object)
+
     delivery_address_label = data_line_3.get_text_area_by_width(
         previous_text_area=address_data,
-        width=LABEL_WIDTH,
+        width=RIGHT_LABEL_WIDTH,
         alignment=Alignment.RIGHT
     )
-    delivery_address_label.write_text("LUGAR DE ENTREGA:")
+    delivery_address_label.write_text(pdf_object, "LUGAR DE ENTREGA:")
+    delivery_address_label.bounding_rect.draw_right_line = True
+    delivery_address_label.bounding_rect.draw(pdf_object)
+
     delivery_address_data = data_line_3.get_text_area_by_width(
         previous_text_area=delivery_address_label,
         width=data_section_width,
     )
+    delivery_address_data.write_text(pdf_object, budget.delivery_city.name)
+
+    #Line 4
+    data_line_4 = data_line_3.get_next_line()
+    city_label = data_line_4.get_text_area_by_width(
+        width=LEFT_LABEL_WIDTH,
+        alignment=Alignment.RIGHT
+    )
+    city_label.write_text(pdf_object, "CIUDAD:")
+    city_label.bounding_rect.draw_right_line = True
+    city_label.bounding_rect.draw(pdf_object)
+
+    city_data = data_line_4.get_text_area_by_width(
+        previous_text_area=city_label,
+        width=data_section_width
+    )
+    if (budget.delivery_address and budget.delivery_address.city):
+        city_data.write_text(pdf_object, budget.delivery_address.city.name)
+    city_data.bounding_rect.draw_right_line = True
+    city_data.bounding_rect.draw(pdf_object)
+
+    proforma_label = data_line_4.get_text_area_by_width(
+        previous_text_area=city_data,
+        width=RIGHT_LABEL_WIDTH,
+        alignment=Alignment.RIGHT
+    )
+    proforma_label.write_text(pdf_object, "PROFORMA N°:")
+    proforma_label.bounding_rect.draw_right_line = True
+    proforma_label.bounding_rect.draw(pdf_object)
+
+    proforma_data = data_line_4.get_text_area_by_width(
+        previous_text_area=proforma_label,
+        width=data_section_width
+    )
+    proforma_data.write_text(pdf_object, budget.number)
+
+
+def product_detail_section(
+        pdf_object,
+        top_left_x,
+        top_left_y,
+        bottom_right_x,
+        bottom_right_y,
+        budget
+):
+    HEADER_LINE_H = 30
+    QUANTITY_WIDTH = 50
+    PRODUCT_WIDTH = 295
+    IMAGE_WIDTH = 65
+    UNIT_PRICE_WIDTH = 65
+    TOTAL_PRICE_WIDTH = 65
+
+    product_detail_header = Rectangle(
+        x=top_left_x,
+        y=top_left_y,
+        x2=bottom_right_x,
+        y2=bottom_right_y,
+        name='Product Detail Section',
+        draw_top_line=False,
+        draw_left_line=False,
+        draw_right_line=False,
+        draw_bottom_line=False
+    )
+
+    header_line = product_detail_header.get_text_line_from_top(0, HEADER_LINE_H, STYLE_PRODUCT_HEADER)
+    header_line.bounding_rect.draw_bottom_line = True
+    header_line.draw_rect(pdf_object)
+    header_line.padding_left = 3
+    header_line.padding_right = 3
+
+    quantity_label = header_line.get_text_area_by_width(width=QUANTITY_WIDTH, alignment=Alignment.CENTER)
+    quantity_label.write_text(pdf_object, "CANTIDAD")
+
+    # quantity line
+    pdf_object.line(
+        quantity_label.bounding_rect.top_right_point.x,
+        top_left_y,
+        quantity_label.bounding_rect.top_right_point.x,
+        bottom_right_y
+    )
+
+    product_label = header_line.get_text_area_by_width(
+        previous_text_area=quantity_label,
+        width=PRODUCT_WIDTH,
+        alignment=Alignment.CENTER
+    )
+    product_label.write_text(pdf_object, "PRODUCTO")
+
+    # product line
+    pdf_object.line(
+        product_label.bounding_rect.top_right_point.x,
+        top_left_y,
+        product_label.bounding_rect.top_right_point.x,
+        bottom_right_y
+    )
+
+    # Image Label
+    image_label = header_line.get_text_area_by_width(
+        previous_text_area=product_label,
+        width=IMAGE_WIDTH,
+        alignment=Alignment.CENTER
+    )
+    image_label.write_text(pdf_object, "IMAGEN")
+
+    # Image line
+    pdf_object.line(
+        image_label.bounding_rect.top_right_point.x,
+        top_left_y,
+        image_label.bounding_rect.top_right_point.x,
+        bottom_right_y
+    )
+
+    # Unit Price
+    unit_price_label = header_line.get_text_area_by_width(
+        previous_text_area=image_label,
+        width=UNIT_PRICE_WIDTH,
+        alignment=Alignment.CENTER
+    )
+    unit_price_label.write_text(pdf_object, "PRECIO UNITARIO")
+
+    # Unit price line
+    pdf_object.line(
+        unit_price_label.bounding_rect.top_right_point.x,
+        top_left_y,
+        unit_price_label.bounding_rect.top_right_point.x,
+        bottom_right_y
+    )
+
+    # Total Price
+    total_price_label = header_line.get_text_area_by_width(
+        previous_text_area=unit_price_label,
+        width=TOTAL_PRICE_WIDTH,
+        alignment=Alignment.CENTER
+    )
+    total_price_label.write_text(pdf_object, "PRECIO TOTAL")
+
+    # ----------------------------------------------------------------------
+    # Product Detail
+    # ----------------------------------------------------------------------
+
+    quantity_data_line = header_line.get_next_line() 
+
+    for budget_detail in budget.budgetdetail_set.all():
+        quantity_data = quantity_data_line.get_text_area_by_width(width=QUANTITY_WIDTH, alignment=Alignment.CENTER)
+        quantity_data.write_text(pdf_object, "{}".format(budget_detail.quantity))
+
+        product_data = quantity_data_line.get_text_area_by_width(
+            previous_text_area=quantity_data,
+            width=PRODUCT_WIDTH,
+            alignment=Alignment.LEFT
+        )
+        product_data.write_text(pdf_object, budget_detail.product.description)
+
+        # Image Data
+        image_data = quantity_data_line.get_text_area_by_width(
+            previous_text_area=product_data,
+            width=IMAGE_WIDTH,
+            alignment=Alignment.CENTER
+        )
+        # image_data.write_text(pdf_object, "IMAGEN")
+        image_data.draw_image(pdf_object, budget_detail.product.get_photo().url, HEADER_LINE_H)
+
+
+        # Unit Price
+        unit_price_data = quantity_data_line.get_text_area_by_width(
+            previous_text_area=image_data,
+            width=UNIT_PRICE_WIDTH,
+            alignment=Alignment.CENTER
+        )
+        unit_price_data.write_text(pdf_object, f'US$ {budget_detail.product.wholesale_price:n}')
+
+        # Total Price
+        total_price_data = quantity_data_line.get_text_area_by_width(
+            previous_text_area=unit_price_data,
+            width=TOTAL_PRICE_WIDTH,
+            alignment=Alignment.CENTER
+        )
+        total_price_data.write_text(pdf_object, f'US$ {budget_detail.product.wholesale_price * budget_detail.quantity:n}')
+
+        quantity_data_line = quantity_data_line.get_next_line() 
+       
+
+def footer_section(
+        pdf_object,
+        top_left_x,
+        top_left_y,
+        bottom_right_x,
+        bottom_right_y,
+        budget
+):
+    FOOTER_LINE_H = 15
+    DUMMY_1_W = 80
+    ADVANCE_PAYMENT_W = 50
+    ADVANCE_PAYMENT_DATA_W = 60
+    DUMMY_2_W = 90
+    SALDO_W = 70
+    SALDO_DATA_W = 60
+    TOTAL_PRICE_W = 70
+    TOTAL_PRICE_DATA_W = 60
+
+    footer = Rectangle(
+        x=top_left_x,
+        y=top_left_y,
+        x2=bottom_right_x,
+        y2=bottom_right_y,
+        name='Footer',
+        draw_top_line=True,
+        draw_left_line=False,
+        draw_right_line=True,
+        draw_bottom_line=False,
+        back_ground_color=COLOR_GRAY_1
+    )
+    footer.draw(pdf_object)
+    footer_line_1 = footer.get_text_line_from_top(0, FOOTER_LINE_H, STYLE_PRODUCT_HEADER)
+    footer_line_1.padding_left = 3
+    footer_line_1.padding_right = 3
+
+    dummy = footer_line_1.get_text_area_by_width(width=DUMMY_1_W, alignment=Alignment.CENTER)
+    advanced_payment_label = footer_line_1.get_text_area_by_width(
+        previous_text_area=dummy,
+        width=ADVANCE_PAYMENT_W,
+        alignment=Alignment.RIGHT
+    )
+    advanced_payment_label.write_text(pdf_object, "ANTICIPO:")
+    advanced_payment_label.bounding_rect.draw_left_line = True
+    advanced_payment_label.bounding_rect.draw_bottom_line = True
+    advanced_payment_label.bounding_rect.draw(pdf_object)
+
+    advanced_payment_data = footer_line_1.get_text_area_by_width(
+        previous_text_area=advanced_payment_label,
+        width=ADVANCE_PAYMENT_DATA_W,
+        alignment=Alignment.LEFT
+    )
+    advanced_payment_data.write_text(pdf_object, "123")
+    advanced_payment_data.bounding_rect.draw_right_line = True
+    advanced_payment_data.bounding_rect.draw_bottom_line = True
+    advanced_payment_data.bounding_rect.draw(pdf_object)
+
+    dummy = footer_line_1.get_text_area_by_width(
+        previous_text_area=advanced_payment_data,
+        width=DUMMY_2_W,
+        alignment=Alignment.CENTER
+    )
+
+    saldo_label = footer_line_1.get_text_area_by_width(
+        previous_text_area=dummy,
+        width=SALDO_W,
+        alignment=Alignment.RIGHT
+    )
+    saldo_label.write_text(pdf_object, "SALDO:")
+    saldo_label.bounding_rect.draw_left_line = True
+    saldo_label.bounding_rect.draw_bottom_line = True
+    saldo_label.bounding_rect.draw(pdf_object)
+
+    saldo_data = footer_line_1.get_text_area_by_width(
+        previous_text_area=saldo_label,
+        width=SALDO_DATA_W,
+        alignment=Alignment.LEFT
+    )
+    saldo_data.write_text(pdf_object, "123:")
+    saldo_data.bounding_rect.draw_right_line = True
+    saldo_data.bounding_rect.draw_bottom_line = True
+    saldo_data.bounding_rect.draw(pdf_object)
+
+    total_price_label = footer_line_1.get_text_area_by_width(
+        previous_text_area=saldo_data,
+        width=TOTAL_PRICE_W,
+        alignment=Alignment.RIGHT
+    )
+    total_price_label.write_text(pdf_object, "PRECIO TOTAL:")
+    total_price_label.bounding_rect.draw_bottom_line = True
+    total_price_label.bounding_rect.draw(pdf_object)
+
+    total_price_data = footer_line_1.get_text_area_by_width(
+        previous_text_area=total_price_label,
+        width=TOTAL_PRICE_DATA_W,
+        alignment=Alignment.LEFT
+    )
+    total_price_data.write_text(pdf_object, "123:")
+    total_price_data.bounding_rect.draw_bottom_line = True
+    total_price_data.bounding_rect.draw(pdf_object)
+
+    footer_line_2 = footer_line_1.get_next_line()
+    footer_line_2.padding = 3
+    total_width = bottom_right_x - top_left_x
+
+    commercial_terms_area = footer_line_2.get_text_area_by_width(width=total_width, alignment=Alignment.LEFT)
+    commercial_terms = pdf_object.beginText()
+    commercial_terms.setTextOrigin(
+        commercial_terms_area.bounding_rect.top_left_point.x,
+        commercial_terms_area.bounding_rect.top_left_point.y - 40
+    )
+    commercial_terms.setFont("Helvetica", 8)
+    commercial_terms.textLines(unquote(budget.commercial_terms))
+    # pdf_object.drawText(commercial_terms)
+        
+    styleSheet = getSampleStyleSheet()
+
+    # styleSheet['small'] = 
+
+    style = ParagraphStyle(
+        'small',
+        # parent=styleSheet['Normal'],
+        fontName='Helvetica',
+        fontSize=8,
+        leading=10
+    )
+    commercial_terms_paragraph = Paragraph(unquote(budget.commercial_terms), style)
+    w,h = commercial_terms_paragraph.wrap(total_width - 10, 1000)
+    commercial_terms_paragraph.drawOn(pdf_object, 35, 60)
+    
+    # text = Paragraph("long line",
+    #           styles['Normal'])
+
 
 def generate_pdf(request, budget_id):
     buffer = io.BytesIO()
@@ -594,15 +1115,25 @@ def generate_pdf(request, budget_id):
 
     budget = Budget.objects.get(pk=budget_id)
 
+    main_rectangle = Rectangle(
+        x=MAIN_RECT_X,
+        y=MAIN_RECT_Y,
+        width=MAIN_RECT_W,
+        height=MAIN_RECT_H,
+        name='Main Rectangle'
+    )
+
+    # main_rectangle.draw(pdf_object)
+
+    pdf_object.setLineWidth(0.5)
     pdf_object.rect(MAIN_RECT_X, MAIN_RECT_Y, MAIN_RECT_W, MAIN_RECT_H)
+
     top_left_x = MAIN_RECT_X
     top_left_y = MAIN_RECT_Y + MAIN_RECT_H
     bottom_right_x = MAIN_RECT_X + MAIN_RECT_W
     bottom_right_y = MAIN_RECT_Y
 
     drawHeader(pdf_object, top_left_x, top_left_y, bottom_right_x, bottom_right_y, budget)
-    pdf_object.drawString(20, 30, "A")
-    pdf_object.drawString(570, 800, "B")
 
     pdf_object.showPage()
     pdf_object.save()
