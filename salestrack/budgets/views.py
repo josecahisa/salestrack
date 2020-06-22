@@ -1074,6 +1074,10 @@ def footer_section(
 
     footer_line_2 = footer_line_1.get_next_line()
     footer_line_2.padding = 3
+
+    commercial_terms_x = footer_line_2.bounding_rect.top_left_point.x
+    commercial_terms_y = footer_line_2.bounding_rect.top_left_point.y - 5
+
     total_width = bottom_right_x - top_left_x
 
     commercial_terms_area = footer_line_2.get_text_area_by_width(width=total_width, alignment=Alignment.LEFT)
@@ -1084,26 +1088,23 @@ def footer_section(
     )
     commercial_terms.setFont("Helvetica", 8)
     commercial_terms.textLines(unquote(budget.commercial_terms))
-    # pdf_object.drawText(commercial_terms)
         
     styleSheet = getSampleStyleSheet()
-
-    # styleSheet['small'] = 
 
     style = ParagraphStyle(
         'small',
         # parent=styleSheet['Normal'],
         fontName='Helvetica',
-        fontSize=8,
-        leading=10
+        fontSize=6,
+        leading=8
     )
-    commercial_terms_paragraph = Paragraph(unquote(budget.commercial_terms), style)
-    w,h = commercial_terms_paragraph.wrap(total_width - 10, 1000)
-    commercial_terms_paragraph.drawOn(pdf_object, 35, 60)
-    
-    # text = Paragraph("long line",
-    #           styles['Normal'])
 
+    str_commercial_terms_to_print = unquote(budget.commercial_terms.replace('%0A', '<br />'))
+    commercial_terms_paragraph = Paragraph(str_commercial_terms_to_print, style)
+    w,h = commercial_terms_paragraph.wrap(total_width - 10, 1000)
+    # commercial_terms_paragraph.drawOn(pdf_object, 35, 45)
+    commercial_terms_paragraph.drawOn(pdf_object, 35, commercial_terms_y - h)
+    
 
 def generate_pdf(request, budget_id):
     buffer = io.BytesIO()
