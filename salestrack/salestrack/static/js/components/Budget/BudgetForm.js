@@ -82,6 +82,7 @@ const FIELD_CLIENT = 'client';
 const FIELD_CLIENT_ADDRESS = 'clientAddress';
 const FIELD_SHIPPING = 'shipping';
 const FIELD_DELIVERY_CITY = 'deliveryCity';
+const FIELD_CLIENT_NIT = 'nit';
 export const FIELD_COMMERCIAL_TERMS = 'commercialTerms';
 export const FIELD_DISCOUNT = 'discount';
 
@@ -112,6 +113,7 @@ export default function BudgetForm() {
     const [commercialTerms, setCommercialTerms] = React.useState("");
     const [updatingData, setUpdatingData] = React.useState(false);
     const [pendingUpdates, setPendingUpdates] = React.useState(false);
+    const [nit, setNit] = useState('');
     const steps = getSteps();
 
     const handleNext = () => {
@@ -267,6 +269,9 @@ export default function BudgetForm() {
                     setClientAddress(newValue);
                     updateBudget('deliveryAddressId', newValue.id);
                 }
+                break;
+
+            case FIELD_CLIENT_NIT:
                 break;
 
             case FIELD_SHIPPING:
@@ -447,242 +452,249 @@ export default function BudgetForm() {
                         {getBudgetHeaderDetail()}
                     </StepLabel>
                     <StepContent>
-                        {/* <Card className={classes.dataSection}> */}
-                            {/* <CardContent> */}
-                                <Grid container spacing={spacing}>
-                                    <Grid item xs={2}>
+                        <Grid container spacing={spacing}>
+                            <Grid item xs={2}>
+                                <TextField
+                                    id="nroPresupuesto"
+                                    label="Nro de Presupuesto"
+                                    value={number}
+                                    fullWidth
+                                    margin="normal"
+                                    disabled
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <MuiPickersUtilsProvider
+                                    variant="inline"
+                                    format="dd/MM/yy"                
+                                    utils={DateFnsUtils}>
+
+                                    <KeyboardDatePicker
+                                        disableToolbar
+                                        variant="inline"
+                                        format="MM/dd/yyyy"
+                                        margin="normal"
+                                        id="date-picker-inline"
+                                        label="Fecha"
+                                        value={selectedDate}
+                                        onChange={handleDateChange}
+                                        KeyboardButtonProps={{
+                                            'aria-label': 'Cambiar la fecha',
+                                        }}
+                                    />
+
+                                </MuiPickersUtilsProvider>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <Autocomplete
+                                    options={budgetStatusList}
+                                    getOptionLabel={(option) => {
+                                        if (option && option.name) {
+                                            return option.name;
+                                        }
+                                        return '';
+                                    }}
+                                    value={budgetStatus}
+                                    onChange={(event, newValue) => {
+                                        onFieldChange(FIELD_BUDGET_STATUS, newValue);
+                                    }}
+                                    id="budget-status"
+                                    disableClearable
+                                    renderInput={(params) => 
                                         <TextField
-                                            id="nroPresupuesto"
-                                            label="Nro de Presupuesto"
-                                            value={number}
-                                            fullWidth
+                                            {...params}
+                                            label="Estado"
                                             margin="normal"
-                                            disabled
+                                        />
+                                    }
+                                />
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={spacing}>
+                            <Grid item xs={4}>
+                                <Autocomplete
+                                    id="idCliente"
+                                    filterOptions={(options, params) => {
+                                        const filtered = filter(options, params);
+                                
+                                        if (params.inputValue !== '') {
+                                        filtered.push({
+                                            id: params.inputValue,
+                                            inputValue: params.inputValue,
+                                            name: `Agregar "${params.inputValue}"`,
+                                        });
+                                        }
+                                
+                                        return filtered;
+                                    }}
+                                    options={clientsOptions}
+                                    value={client}
+                                    onChange={(event, newValue) => {
+                                        onFieldChange(FIELD_CLIENT, newValue);
+                                    }}
+                                    getOptionLabel={(option) => {
+                                        if (option && option.name) {
+                                            return option.name;
+                                        }
+                                        return '';
+                                    }}
+
+                                    renderOption={(option) => option.name}
+                                    renderInput={(params) => (
+                                    <TextField {...params} label="Cliente" margin="normal" />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={2}>
+                                <TextField 
+                                    label="NIT/CI"
+                                    margin="normal"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    value="yosoyelnit"
+                                />
+                            </Grid>
+
+                            <Grid item xs={4}>
+                                <Autocomplete
+                                    id="idAddress"
+                                    filterOptions={(options, params) => {
+                                        const filtered = filter(options, params);
+                                
+                                        if (params.inputValue !== '') {
+                                        filtered.push({
+                                            id: params.inputValue,
+                                            inputValue: params.inputValue,
+                                            address: `Agregar "${params.inputValue}"`,
+                                        });
+                                        }
+                                
+                                        return filtered;
+                                    }}
+                                    options={addressOptions}
+                                    value={clientAddress}
+                                    onChange={(event, newValue) => {
+                                        onFieldChange(FIELD_CLIENT_ADDRESS, newValue);
+                                    }}
+                                    getOptionLabel={(option) => {
+                                        if (option && option.address) {
+                                            return option.address;
+                                        }
+                                        return '';
+                                    }}
+                                    renderOption={(option) => option.address}
+                                    renderInput={(params) => (
+                                        <TextField 
+                                            {...params}
+                                            label="Dirección del Cliente"
+                                            margin="normal"
+                                            inputProps={{
+                                                ...params.inputProps,
+                                                autoComplete: "no"
+                                            }}
                                             InputLabelProps={{
                                                 shrink: true,
                                             }}
                                         />
-                                    </Grid>
-                                    <Grid item xs={3}>
-                                        <MuiPickersUtilsProvider
-                                            variant="inline"
-                                            format="dd/MM/yy"                
-                                            utils={DateFnsUtils}>
+                                    )}
+                                />
+                            </Grid>
 
-                                            <KeyboardDatePicker
-                                                disableToolbar
-                                                variant="inline"
-                                                format="MM/dd/yyyy"
-                                                margin="normal"
-                                                id="date-picker-inline"
-                                                label="Fecha"
-                                                value={selectedDate}
-                                                onChange={handleDateChange}
-                                                KeyboardButtonProps={{
-                                                    'aria-label': 'Cambiar la fecha',
-                                                }}
-                                            />
+                        </Grid>
 
-                                        </MuiPickersUtilsProvider>
-                                    </Grid>
-                                    <Grid item xs={2}>
-                                        <Autocomplete
-                                            options={budgetStatusList}
-                                            getOptionLabel={(option) => {
-                                                if (option && option.name) {
-                                                    return option.name;
-                                                }
-                                                return '';
-                                            }}
-                                            value={budgetStatus}
-                                            onChange={(event, newValue) => {
-                                                onFieldChange(FIELD_BUDGET_STATUS, newValue);
-                                            }}
-                                            id="budget-status"
-                                            disableClearable
-                                            renderInput={(params) => 
-                                                <TextField
-                                                    {...params}
-                                                    label="Estado"
-                                                    margin="normal"
-                                                />
-                                            }
+                        <Grid container spacing={spacing} >
+                            <Grid item xs={2}>
+                                <Autocomplete
+                                    options={paymentTermsOptions}
+                                    getOptionLabel={(option) => {
+                                        if (option && option.name) {
+                                            return option.name;
+                                        }
+                                        return '';
+                                    }}
+                                    value={paymentTerm}
+                                    onChange={(event, newValue) => {
+                                        onFieldChange(FIELD_PAYMENT_TERM, newValue);
+                                    }}
+                                    id="payment-term-id"
+                                    disableClearable
+                                    renderInput={(params) => 
+                                        <TextField
+                                            {...params}
+                                            label="Forma de Pago"
+                                            fullWidth
+                                            margin="normal"
                                         />
-                                    </Grid>
-                                </Grid>
-                                <Grid container spacing={spacing}>
-                                    <Grid item xs={4}>
-                                        <Autocomplete
-                                            id="idCliente"
-                                            filterOptions={(options, params) => {
-                                                const filtered = filter(options, params);
-                                        
-                                                if (params.inputValue !== '') {
-                                                filtered.push({
-                                                    id: params.inputValue,
-                                                    inputValue: params.inputValue,
-                                                    name: `Agregar "${params.inputValue}"`,
-                                                });
-                                                }
-                                        
-                                                return filtered;
-                                            }}
-                                            options={clientsOptions}
-                                            value={client}
-                                            onChange={(event, newValue) => {
-                                                onFieldChange(FIELD_CLIENT, newValue);
-                                            }}
-                                            getOptionLabel={(option) => {
-                                                if (option && option.name) {
-                                                    return option.name;
-                                                }
-                                                return '';
-                                            }}
+                                    }
+                                />
+                            </Grid>
 
-                                            renderOption={(option) => option.name}
-                                            renderInput={(params) => (
-                                            <TextField {...params} label="Cliente" margin="normal" />
-                                            )}
+                            <Grid item xs={3}>
+                                <Autocomplete
+                                    options={shippingOptions}
+                                    getOptionLabel={(option) => {
+                                        if (option && option.name) {
+                                            return option.name;
+                                        }
+                                        return '';
+                                    }}
+                                    value={shipping}
+                                    onChange={(event, newValue) => {
+                                        onFieldChange(FIELD_SHIPPING, newValue);
+                                    }}
+                                    id="shipping-id"
+                                    disableClearable
+                                    renderInput={(params) => 
+                                        <TextField
+                                            {...params}
+                                            label="Transporte"
+                                            fullWidth
+                                            margin="normal"
+                                            InputLabelProps={{
+                                                shrink: true,
+                                            }}
                                         />
-                                    </Grid>
-
-                                    <Grid item xs={4}>
-                                        <Autocomplete
-                                            id="idAddress"
-                                            filterOptions={(options, params) => {
-                                                const filtered = filter(options, params);
-                                        
-                                                if (params.inputValue !== '') {
-                                                filtered.push({
-                                                    id: params.inputValue,
-                                                    inputValue: params.inputValue,
-                                                    address: `Agregar "${params.inputValue}"`,
-                                                });
-                                                }
-                                        
-                                                return filtered;
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <Autocomplete
+                                    options={deliveryCityOptions}
+                                    getOptionLabel={(option) => {
+                                        if (option && option.name) {
+                                            return option.name;
+                                        }
+                                        return '';
+                                    }}
+                                    value={deliveryCity}
+                                    onChange={(event, newValue) => {
+                                        onFieldChange(FIELD_DELIVERY_CITY, newValue);
+                                    }}
+                                    id="delivery-city-id"
+                                    disableClearable
+                                    renderInput={(params) => 
+                                        <TextField
+                                            {...params}
+                                            label="Ciudad de Entrega"
+                                            fullWidth
+                                            margin="normal"
+                                            inputProps={{
+                                                ...params.inputProps,
+                                                autoComplete: "no"
                                             }}
-                                            options={addressOptions}
-                                            value={clientAddress}
-                                            onChange={(event, newValue) => {
-                                                onFieldChange(FIELD_CLIENT_ADDRESS, newValue);
+                                            InputLabelProps={{
+                                                shrink: true,
                                             }}
-                                            getOptionLabel={(option) => {
-                                                if (option && option.address) {
-                                                    return option.address;
-                                                }
-                                                return '';
-                                            }}
-                                            renderOption={(option) => option.address}
-                                            renderInput={(params) => (
-                                                <TextField 
-                                                    {...params}
-                                                    label="Dirección del Cliente"
-                                                    margin="normal"
-                                                    inputProps={{
-                                                        ...params.inputProps,
-                                                        autoComplete: "no"
-                                                    }}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                    }}
-                                                />
-                                            )}
                                         />
-                                    </Grid>
-
-                                </Grid>
-
-                                <Grid container spacing={spacing} >
-                                    <Grid item xs={2}>
-                                        <Autocomplete
-                                            options={paymentTermsOptions}
-                                            getOptionLabel={(option) => {
-                                                if (option && option.name) {
-                                                    return option.name;
-                                                }
-                                                return '';
-                                            }}
-                                            value={paymentTerm}
-                                            onChange={(event, newValue) => {
-                                                onFieldChange(FIELD_PAYMENT_TERM, newValue);
-                                            }}
-                                            id="payment-term-id"
-                                            disableClearable
-                                            renderInput={(params) => 
-                                                <TextField
-                                                    {...params}
-                                                    label="Forma de Pago"
-                                                    fullWidth
-                                                    margin="normal"
-                                                />
-                                            }
-                                        />
-                                    </Grid>
-
-                                    <Grid item xs={3}>
-                                        <Autocomplete
-                                            options={shippingOptions}
-                                            getOptionLabel={(option) => {
-                                                if (option && option.name) {
-                                                    return option.name;
-                                                }
-                                                return '';
-                                            }}
-                                            value={shipping}
-                                            onChange={(event, newValue) => {
-                                                onFieldChange(FIELD_SHIPPING, newValue);
-                                            }}
-                                            id="shipping-id"
-                                            disableClearable
-                                            renderInput={(params) => 
-                                                <TextField
-                                                    {...params}
-                                                    label="Transporte"
-                                                    fullWidth
-                                                    margin="normal"
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                    }}
-                                                />
-                                            }
-                                        />
-                                    </Grid>
-                                    <Grid item xs={3}>
-                                        <Autocomplete
-                                            options={deliveryCityOptions}
-                                            getOptionLabel={(option) => {
-                                                if (option && option.name) {
-                                                    return option.name;
-                                                }
-                                                return '';
-                                            }}
-                                            value={deliveryCity}
-                                            onChange={(event, newValue) => {
-                                                onFieldChange(FIELD_DELIVERY_CITY, newValue);
-                                            }}
-                                            id="delivery-city-id"
-                                            disableClearable
-                                            renderInput={(params) => 
-                                                <TextField
-                                                    {...params}
-                                                    label="Ciudad de Entrega"
-                                                    fullWidth
-                                                    margin="normal"
-                                                    inputProps={{
-                                                        ...params.inputProps,
-                                                        autoComplete: "no"
-                                                    }}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                    }}
-                                                />
-                                            }
-                                        />
-                                    </Grid>
-                                </Grid>                    
-                            {/* </CardContent> */}
-                        {/* </Card> */}
+                                    }
+                                />
+                            </Grid>
+                        </Grid>
                         <div className={classes.actionsContainer}>
                             <div>
                                 <Button

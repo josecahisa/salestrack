@@ -5,7 +5,7 @@ const logger = new Logger('ClientApi');
 
 class ClientApi extends GraphQLApi {
     getClients = () => {
-        const clientsQuery = `{ allClients { id, name } }`;
+        const clientsQuery = `{ allClients { id, nit, name } }`;
 
         return this.getQueryRequest(clientsQuery)
                     .then(response => response.body.data.allClients);

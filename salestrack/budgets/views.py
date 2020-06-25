@@ -1093,7 +1093,6 @@ def footer_section(
 
     style = ParagraphStyle(
         'small',
-        # parent=styleSheet['Normal'],
         fontName='Helvetica',
         fontSize=6,
         leading=8
@@ -1102,7 +1101,6 @@ def footer_section(
     str_commercial_terms_to_print = unquote(budget.commercial_terms.replace('%0A', '<br />'))
     commercial_terms_paragraph = Paragraph(str_commercial_terms_to_print, style)
     w,h = commercial_terms_paragraph.wrap(total_width - 10, 1000)
-    # commercial_terms_paragraph.drawOn(pdf_object, 35, 45)
     commercial_terms_paragraph.drawOn(pdf_object, 35, commercial_terms_y - h)
     
 
