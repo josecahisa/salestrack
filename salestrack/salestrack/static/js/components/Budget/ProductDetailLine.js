@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { cloneDeep } from 'lodash';
 
 export default function ProductDetailLine(props) {
-    const { key, budgetDetail, deleteBudgetDetail, updateBudgetDetail } = props;
+    const { id, budgetDetail, deleteBudgetDetail, updateBudgetDetail } = props;
 
     const size1 = props.size1 ? props.size1 : 1; 
     const size2 = props.size2 ? props.size2 : 8; 
@@ -36,7 +36,7 @@ export default function ProductDetailLine(props) {
     }
 
     return (
-        <Grid key={key} container spacing={spacing} alignItems='center' alignItems='center'>
+        <Grid key={id} container spacing={spacing} alignItems='center' alignItems='center'>
             <Grid item xs={size1} container justify='center'>
                 <Avatar src={'/media/' + budgetDetail.product.getPhoto} />
             </Grid>

@@ -16,7 +16,6 @@ class ProductApi extends GraphQLApi {
                         product.code = product.productType.code;
                         return product;
                     });
-                console.log(reformattedProducts);
                 return reformattedProducts;
             });
     }

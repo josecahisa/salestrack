@@ -273,24 +273,7 @@ class Rectangle:
                 )
 
         print_level = max(self.print_level, print_level)
-        # if print_level >= DEBUG_PRINT_LEVEL:
-        #     pdf_object.drawString(
-        #         self.top_left_point.x,
-        #         self.top_left_point.y,
-        #         "TL"
-        #     )
 
-        #     pdf_object.drawString(
-        #         self.bottom_left_point.x,
-        #         self.bottom_left_point.y,
-        #         "BL"
-        #     )
-
-        #     pdf_object.drawString(
-        #         self.bottom_right_point.x,
-        #         self.bottom_right_point.y,
-        #         "BR"
-        #     )
 
     def get_text_line_from_top(self, margin, height, style, padding=0):
         text_line = Text_Line(
@@ -332,18 +315,11 @@ class Text_Area:
         self.print_level = print_level
 
     def get_centered_y_position(self):
-        # print("font_height = {0}".format(self.style.font_height))
         return self.bounding_rect.y_center - (self.style.font_height / 2)
 
     def write_right_alignment(self, pdf_object, text):
         x_pos = self.x + self.width - self.padding_right
-        # print("write right aligned text - text_y = {0}".format(self.text_y))
         pdf_object.drawRightString(x_pos, self.text_y, text)
-        # pdf_object.drawRightString(200, self.bounding_rect.y_center, "1")
-        # pdf_object.drawRightString(220, self.bounding_rect.top_left_point.y, "2")
-        # pdf_object.drawRightString(240, self.bounding_rect.bottom_left_point.y, "3")
-        # pdf_object.drawRightString(260, self.y, "4")
-        # pdf_object.drawRightString(280, self.text_y, "5")
 
     def write_center_alignment(self, pdf_object, text):
         x_pos = self.x + (self.width / 2)
@@ -736,7 +712,6 @@ def draw_header_data_section(
     nit_data.write_text(pdf_object, budget.client.nit)
     nit_data.bounding_rect.draw_right_line = True
     nit_data.bounding_rect.draw(pdf_object)
-    nit_data.write_text(pdf_object, budget.client.nit)
 
     payment_term_label = data_line_2.get_text_area_by_width(
         previous_text_area=nit_data,
@@ -751,11 +726,10 @@ def draw_header_data_section(
         previous_text_area=payment_term_label,
         width=data_section_width
     )
+    print(budget.paymentTerm)
     if (budget.paymentTerm):
         payment_term_data.write_text(pdf_object, budget.paymentTerm.name)
 
-    if budget.paymentTerm:
-        payment_term_data.write_text(budget.paymentTerm.name)
 
     #line 3
     data_line_3 = data_line_2.get_next_line()
@@ -773,7 +747,8 @@ def draw_header_data_section(
         previous_text_area=address_label,
         width=data_section_width
     )
-    address_data.write_text(pdf_object, budget.delivery_address.address)
+    if budget.delivery_address is not None:
+        address_data.write_text(pdf_object, budget.delivery_address.address)
     address_data.bounding_rect.draw_right_line = True
     address_data.bounding_rect.draw(pdf_object)
 

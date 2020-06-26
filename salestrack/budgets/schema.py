@@ -113,12 +113,14 @@ class BudgetMutation(graphene.Mutation):
 
         if client_id is not None:
             budget.set_client(client_id)
+            budget.set_delivery_address(None)
 
         if delivery_address_id is not None:
             budget.set_delivery_address(delivery_address_id)
 
         if payment_term_id is not None:
-            budget.payment_term_id = payment_term_id
+            payment_term = PaymentTerm.objects.get(pk=payment_term_id)
+            budget.paymentTerm = payment_term
 
         if shipping_id is not None:
             budget.shipping_id = shipping_id

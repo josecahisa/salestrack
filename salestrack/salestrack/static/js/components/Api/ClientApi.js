@@ -5,20 +5,20 @@ const logger = new Logger('ClientApi');
 
 class ClientApi extends GraphQLApi {
     getClients = () => {
-        const clientsQuery = `{ allClients { id, nit, name } }`;
+        const clientsQuery = `{ allClients { id, name, nit } }`;
 
         return this.getQueryRequest(clientsQuery)
                     .then(response => response.body.data.allClients);
     }
 
-    createClient = name => {
-        return this.updateClient(name);
+    createClient = (name, nit) => {
+        return this.updateClient(0, name, nit);
     }
 
-    updateClient = name => {
+    updateClient = (id, name, nit) => {
         const addClientMutationTemplate = `mutation {
-            updateClient(id:0, name:"${name}") {
-                client { id, name }
+            updateClient(id:${id}, name:"${name}", nit:"${nit}") {
+                client { id, name, nit }
             }
         }`
         

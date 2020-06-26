@@ -182,6 +182,7 @@ export default function BudgetFormProductsDetail(props) {
                     return (
                     <ProductDetailLine
                         key={detail.id}
+                        id={detail.id}
                         budgetDetail={detail}
                         size1={1}
                         size2={7}
@@ -194,14 +195,14 @@ export default function BudgetFormProductsDetail(props) {
             </div>
             <div className={classes.totals} >
                 <Grid key="detailSubTotalCal" container spacing={spacing} alignItems='center' alignItems='center'>
-                    <Grid xs={7} />
-                    <Grid xs={1} > <Typography variant="subtitle2"> Subtotal: </Typography>  </Grid>
-                    <Grid xs={1}/>
-                    <Grid xs={1} container justify='flex-end' > {budgetTotal} </Grid>
+                    <Grid item xs={7} />
+                    <Grid item xs={1} > <Typography variant="subtitle2"> Subtotal: </Typography>  </Grid>
+                    <Grid item xs={1}/>
+                    <Grid item xs={1} container justify='flex-end' > {budgetTotal} </Grid>
                 </Grid>
                 <Grid key="detailDiscount" container spacing={spacing} alignItems='center' alignItems='center'>
-                    <Grid xs={7} />
-                    <Grid xs={1} > <Typography variant="subtitle2"> Descuento: </Typography>  </Grid>
+                    <Grid item xs={7} />
+                    <Grid item xs={1} > <Typography variant="subtitle2"> Descuento: </Typography>  </Grid>
                     <Grid item xs={1}>
                         <TextField
                             id="discount"
@@ -220,15 +221,15 @@ export default function BudgetFormProductsDetail(props) {
                             }}
                         />
                     </Grid>
-                    <Grid xs={1} container justify='flex-end' className={classes.discountFormat} > 
+                    <Grid item xs={1} container justify='flex-end' className={classes.discountFormat} > 
                         ( {budgetDiscountApplied} )
                     </Grid>
                 </Grid>
                 <Grid key="detailTotal" container spacing={spacing} alignItems='center' alignItems='center'>
-                    <Grid xs={7} />
-                    <Grid xs={1} > <Typography variant="subtitle2"> Total: </Typography>  </Grid>
-                    <Grid xs={1}/>
-                    <Grid xs={1} container justify='flex-end' > {budgetTotalWithDiscount} </Grid>
+                    <Grid item xs={7} />
+                    <Grid item xs={1} > <Typography variant="subtitle2"> Total: </Typography>  </Grid>
+                    <Grid item xs={1}/>
+                    <Grid item xs={1} container justify='flex-end' > {budgetTotalWithDiscount} </Grid>
                 </Grid>
 
             </div>

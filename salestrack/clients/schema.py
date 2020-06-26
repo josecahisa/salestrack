@@ -31,10 +31,11 @@ class ClientMutation(graphene.Mutation):
         # Input arguments for this mutation
         name = graphene.String(required=True)
         id = graphene.ID()
+        nit = graphene.String(required=False)
 
     client = graphene.Field(ClientType)
 
-    def mutate(self, info, name, id):
+    def mutate(self, info, name, id, nit):
         try:
             client = Client.objects.get(pk=id)
             client.name = name
@@ -42,6 +43,9 @@ class ClientMutation(graphene.Mutation):
             client = Client(
                 name=name
             )
+
+        if nit is not None:
+            client.nit = nit
 
         client.save()
         return ClientMutation(client=client)

@@ -74,8 +74,15 @@ class Budget(models.Model):
         self.client = client
 
     def set_delivery_address(self, address_id):
-        address = Address.objects.get(pk=address_id)
-        self.delivery_address = address
+        print('setting delivery address to id = {}'.format(address_id))
+        if address_id is None:
+            return
+
+        try:
+            address = Address.objects.get(pk=address_id)
+            self.delivery_address = address
+        except:
+            print('no Address found with id = {}'.format(address_id))
 
     def generate_budget_number(self):
         today = datetime.today()

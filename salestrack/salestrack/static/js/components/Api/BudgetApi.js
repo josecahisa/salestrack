@@ -21,7 +21,7 @@ class BudgetApi extends GraphQLApi {
                 date,
                 status,
                 commercialTerms,
-                client { id, name },
+                client { id, name, nit },
                 deliveryAddress { id, address },
                 paymentTerm { id, name },
                 discount,
@@ -44,7 +44,8 @@ class BudgetApi extends GraphQLApi {
 
     updateBudget = (budget) => {
         // TODO: refactor this function
-        let fieldsToUpdate = '';
+        let fieldsWithValuesToUpdate = '';
+
         const fieldDelimiters = {
             date: '"',
             status: '"',
@@ -53,17 +54,17 @@ class BudgetApi extends GraphQLApi {
         };
 
         Object.entries(budget).map(([key, value]) => {
-            const separator = fieldsToUpdate ? ', ' : '';
+            const separator = fieldsWithValuesToUpdate ? ', ' : '';
             const valueDelimiter = fieldDelimiters[key] ? fieldDelimiters[key] : '';
             if (key === 'commercialTerms') {
                 value = encodeURIComponent(value);
             }
-            fieldsToUpdate = fieldsToUpdate + separator + key + ':' + valueDelimiter + value + valueDelimiter;
+            fieldsWithValuesToUpdate = fieldsWithValuesToUpdate + separator + key + ':' + valueDelimiter + value + valueDelimiter;
         });
 
-        console.log(fieldsToUpdate);
+        console.log(fieldsWithValuesToUpdate);
         const budgetMutation = `mutation {
-            updateBudget(${fieldsToUpdate}) {
+            updateBudget(${fieldsWithValuesToUpdate}) {
                 budget { id, date, number }
             }
         }`
@@ -86,10 +87,10 @@ class BudgetApi extends GraphQLApi {
 
         const newDetail = budgetDetail;
         delete newDetail.product;
-        const fieldsToUpdate = this.createMutationFieldsFromObjectWithTypes(newDetail, fieldTypes);
+        const fieldsWithValuesToUpdate = this.createMutationFieldsFromObjectWithTypes(newDetail, fieldTypes);
 
         const budgetMutation = `mutation {
-            updateBudgetDetail(${fieldsToUpdate}) {
+            updateBudgetDetail(${fieldsWithValuesToUpdate}) {
                 budgetDetail { id, price, product { id, description } }
             }
         }`
@@ -109,10 +110,10 @@ class BudgetApi extends GraphQLApi {
 
         const newDetail = budgetDetail;
         delete newDetail.product;
-        const fieldsToUpdate = this.createMutationFieldsFromObjectWithTypes(newDetail, fieldTypes);
+        const fieldsWithValuesToUpdate = this.createMutationFieldsFromObjectWithTypes(newDetail, fieldTypes);
 
         const budgetMutation = `mutation {
-            updateBudgetDetail(${fieldsToUpdate}) {
+            updateBudgetDetail(${fieldsWithValuesToUpdate}) {
                 budgetDetail { id, price, product { id, description } }
             }
         }`

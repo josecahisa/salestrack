@@ -42,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
     linearProgressArea: {
         height: '5px',
         marginTop: '5px'
+    },
+    sectionHeaderCompressed: {
+        cursor: 'pointer'
     }
 }));
 
@@ -91,7 +94,7 @@ function getSteps() {
 }
 
 export default function BudgetForm() {
-    const classes = useStyles();
+    const styles = useStyles();
     const spacing = 6;
     const [id, setId] = useState(0);
     const [number, setNumber] = useState(0);
@@ -124,6 +127,11 @@ export default function BudgetForm() {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
     
+    const handleSetStep = step => () => {
+        console.log(`changing active step to ${step}`);
+        setActiveStep(step);
+    }
+
     const handleReset = () => {
         setActiveStep(0);
     };
@@ -241,7 +249,7 @@ export default function BudgetForm() {
             case FIELD_CLIENT:
                 if (addNewOption) {
                     clientApi
-                        .createClient(newValue.inputValue)
+                        .createClient(newValue.inputValue, nit)
                         .then(newClient => {
                             setClient(newClient);
                             updateBudget('clientId', newClient.id);
@@ -249,6 +257,9 @@ export default function BudgetForm() {
                 } else {
                     setClient(newValue);
                     updateBudget('clientId', newValue.id);
+                    const newNit = newValue.nit ? newValue.nit : '';
+                    setNit(newNit);
+                    setClientAddress(null);
                 }
                 break;
             
@@ -272,6 +283,10 @@ export default function BudgetForm() {
                 break;
 
             case FIELD_CLIENT_NIT:
+                if (client && client.id && client.id > 0) {
+                    clientApi.updateClient(client.id, client.name, newValue);
+                }
+                setNit(newValue);
                 break;
 
             case FIELD_SHIPPING:
@@ -299,8 +314,11 @@ export default function BudgetForm() {
     const getBudgetHeaderDetail = () => {
         if (activeStep != 0) {
             return <>
-                <div>Cliente: {client.name} - ({clientAddress.address}) |
-                     Forma de Pago: {paymentTerm.name} - Transporte : {shipping.name}
+                <div onClick={handleSetStep(0)} className={styles.sectionHeaderCompressed}>
+                    Cliente: {client.name} |
+                    Dirección: {clientAddress.address} |
+                    Forma de Pago: {paymentTerm.name} |
+                    Transporte : {shipping.name}
                 </div>
             </>;
         } else {
@@ -351,6 +369,7 @@ export default function BudgetForm() {
 
                         if (budget.client) {
                             setClient(budget.client);
+                            setNit(budget.client.nit);
                         }
 
                         if (budget.deliveryAddress) {
@@ -443,7 +462,7 @@ export default function BudgetForm() {
     logger.log('');
     return (
         <Container >
-            <div className={classes.linearProgressArea} >
+            <div className={styles.linearProgressArea} >
             { updatingData && <LinearProgress /> }
             </div>
             <Stepper activeStep={activeStep} orientation="vertical">
@@ -556,7 +575,10 @@ export default function BudgetForm() {
                                     InputLabelProps={{
                                         shrink: true,
                                     }}
-                                    value="yosoyelnit"
+                                    value={nit}
+                                    onChange={(event) => {
+                                        onFieldChange(FIELD_CLIENT_NIT, event.target.value);
+                                    }}
                                 />
                             </Grid>
 
@@ -695,13 +717,13 @@ export default function BudgetForm() {
                                 />
                             </Grid>
                         </Grid>
-                        <div className={classes.actionsContainer}>
+                        <div className={styles.actionsContainer}>
                             <div>
                                 <Button
                                     variant="contained"
                                     color="primary"
                                     onClick={handleNext}
-                                    className={classes.button}
+                                    className={styles.button}
                                 >
                                     Siguiente
                                 </Button>
@@ -710,7 +732,11 @@ export default function BudgetForm() {
                     </StepContent>
                 </Step>
                 <Step key="step2">
-                    <StepLabel>Productos</StepLabel>
+                    <StepLabel onClick={handleSetStep(1)}>
+                        <div className={styles.sectionHeaderCompressed}>
+                            Productos
+                        </div>
+                    </StepLabel>
                     <StepContent>
                         <BudgetFormProductsDetail
                             handleBack={handleBack}
@@ -725,7 +751,11 @@ export default function BudgetForm() {
                     </StepContent>
                 </Step>
                 <Step key="step3">
-                    <StepLabel>Condiciones Comerciales</StepLabel>
+                    <StepLabel onClick={handleSetStep(2)}>
+                        <div className={styles.sectionHeaderCompressed}>
+                            Condiciones Comerciales
+                        </div>
+                    </StepLabel>
                     <StepContent>
                         <CommercialTerms
                             handleBack={handleBack}
