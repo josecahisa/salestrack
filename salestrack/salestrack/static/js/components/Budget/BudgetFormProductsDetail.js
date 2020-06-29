@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { productApi } from 'components/Api/ProductApi';
 import Grid from '@material-ui/core/Grid';
-import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Avatar from '@material-ui/core/Avatar';
@@ -11,8 +11,6 @@ import ProductDetailLine from 'components/Budget/ProductDetailLine';
 import { ProductRecord } from 'components/Budget/BudgetModels';
 import { FIELD_DISCOUNT } from 'components/Budget/BudgetForm';
 import InputAdornment from '@material-ui/core/InputAdornment';
-
-const filter = createFilterOptions();
 
 const useStyles = makeStyles((theme) => ({
     dataSection: {
@@ -102,10 +100,6 @@ export default function BudgetFormProductsDetail(props) {
             setProductSelectionOptions(products);
         });
     }, []);
-
-    const handleProductAccesorySelection = (event, newProductAccesory) => {
-        setProductAccesorySelection(newProductAccesory);
-    };
 
     let budgetTotal = 0;
     budgetdetailSet.map(detail => {

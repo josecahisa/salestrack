@@ -57,10 +57,45 @@ class ClientApi extends GraphQLApi {
 
         return this.getQueryRequest(clientAddressQuery)
             .then ( response => {
-                logger.log(response, 'getQueryRequest');
                 return response.body.data.client.addressSet;
             })
     }
+
+    getClientPhoneSet = clientId => {
+        const clientAddressQuery = `{
+            client (id: ${clientId}) {
+                telephoneSet { id, description, number }
+            } 
+        }`
+
+        return this.getQueryRequest(clientAddressQuery)
+            .then ( response => {
+                return response.body.data.client.telephoneSet;
+            })
+    }
+
+    createPhone = (clientId, number) => {
+        return this.updatePhone(clientId, number)
+            .then( response => {
+                logger.log(`${response}`, 'createPhone');
+                return response;
+            });
+    }
+
+    updatePhone = (clientId, number) => {
+        const phoneMutation = `mutation {
+            updatePhone(number:"${number}",clientId:${clientId}) {
+                phone { id, description, number }
+            }
+        }`
+
+        return this.getQueryRequest(phoneMutation)
+            .then( response => {
+                logger.log(JSON.stringify(response.body.data.updateAddress), 'updateAddress');
+                return response.body.data.updateAddress.address;
+            });
+    }
+
 
     getCities = () => {
         return this.getQueryResultForQueryNameAndFields('allCities','id, name');

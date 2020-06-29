@@ -85,6 +85,7 @@ class BudgetMutation(graphene.Mutation):
         discount = graphene.Decimal(required=False)
         id = graphene.ID(required=False)
         commercial_terms = graphene.String(required=False)
+        client_phone_id = graphene.ID(required=False)
 
     budget = graphene.Field(BudgetType)
 
@@ -100,7 +101,8 @@ class BudgetMutation(graphene.Mutation):
             status=None,
             delivery_city_id=None,
             discount=None,
-            commercial_terms=None
+            commercial_terms=None,
+            client_phone_id=None
         ):
 
         try:
@@ -136,6 +138,9 @@ class BudgetMutation(graphene.Mutation):
 
         if commercial_terms is not None:
             budget.commercial_terms = commercial_terms
+
+        if client_phone_id is not None:
+            budget.set_client_phone_by_id(client_phone_id)
 
         budget.save()
         return BudgetMutation(budget=budget)

@@ -3,6 +3,7 @@ from django.db import models
 from clients.models import Client
 from clients.models import Address
 from clients.models import City
+from clients.models import Telephone
 from products.models import Product
 
 
@@ -42,6 +43,7 @@ class Budget(models.Model):
     date = models.DateField(verbose_name="Fecha")
     client = models.ForeignKey(Client, on_delete=models.PROTECT, null=False)
     delivery_address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
+    client_phone =  models.ForeignKey(Telephone, on_delete=models.PROTECT, null=True, blank=True)
     paymentTerm = models.ForeignKey(PaymentTerm, on_delete=models.PROTECT, null=True, blank=True)
     shipping = models.ForeignKey(Shipping, on_delete=models.PROTECT, null=True, blank=True)
     status = models.CharField(
@@ -83,6 +85,16 @@ class Budget(models.Model):
             self.delivery_address = address
         except:
             print('no Address found with id = {}'.format(address_id))
+
+    def set_client_phone_by_id(self, phone_id):
+        if phone_id is None:
+            return
+        
+        try:
+            phone = Telephone.objects.get(pk=phone_id)
+            self.client_phone = phone
+        except:
+            print('no Telephone found with id = {}'.format(phone_id))
 
     def generate_budget_number(self):
         today = datetime.today()

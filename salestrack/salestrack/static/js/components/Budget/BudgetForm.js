@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+
+// Material UI imports
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import DateFnsUtils from '@date-io/date-fns';
@@ -10,22 +12,21 @@ import {
 import Container from '@material-ui/core/Container';
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import Button from '@material-ui/core/Button';
-import { CardActionArea, Typography } from '@material-ui/core';
-import { getParams } from 'components/Utils/utils';
-import { BudgetRecord, budgetStatusList } from 'components/Budget/BudgetModels'
-import { budgetApi } from 'components/Api/BudgetApi';
-import { clientApi } from 'components/Api/ClientApi';
-import { productApi } from 'components/Api/ProductApi';
-import {  } from 'components/Api/ClientApi';
-import { Logger } from 'components/Utils/Logger';
-import Select from '@material-ui/core/Select';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
+import LinearProgress from '@material-ui/core/LinearProgress';  
+
+// Local components and functions
+import { getParams } from 'components/Utils/utils';
+import { BudgetRecord, budgetStatusList } from 'components/Budget/BudgetModels'
+import { budgetApi } from 'components/Api/BudgetApi';
+import { clientApi } from 'components/Api/ClientApi';
+import { Logger } from 'components/Utils/Logger';
 import BudgetFormProductsDetail from 'components/Budget/BudgetFormProductsDetail';
 import CommercialTerms from 'components/Budget/CommercialTerms';
-import LinearProgress from '@material-ui/core/LinearProgress';  
+import BudgetFormHeader from 'components/Budget/BudgetFormHeader';
 
 const filter = createFilterOptions();
 const logger = new Logger('BudgetForm');
@@ -88,6 +89,7 @@ const FIELD_DELIVERY_CITY = 'deliveryCity';
 const FIELD_CLIENT_NIT = 'nit';
 export const FIELD_COMMERCIAL_TERMS = 'commercialTerms';
 export const FIELD_DISCOUNT = 'discount';
+export const FIELD_CLIENT_PHONE = 'clientPhone'
 
 function getSteps() {
     return ['Select campaign settings', 'Create an ad group', 'Create an ad'];
@@ -628,6 +630,12 @@ export default function BudgetForm() {
                             </Grid>
 
                         </Grid>
+
+                        <BudgetFormHeader
+                            handleBack={handleBack}
+                            handleNext={handleNext}
+                            onFieldChange={onFieldChange}
+                        />
 
                         <Grid container spacing={spacing} >
                             <Grid item xs={2}>
