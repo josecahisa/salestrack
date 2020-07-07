@@ -5,6 +5,10 @@ var ExtractText = require('extract-text-webpack-plugin');
 
 module.exports = {
     watch: true,
+    watchOptions: {
+        poll: true,
+        ignored: /node_modules/
+    },    
     entry:  {
         react_app: path.join(__dirname, 'salestrack/static/js/components/App/App')
         // index: path.join(__dirname, 'salestrack/static/js/components/index.js'),
@@ -52,7 +56,6 @@ module.exports = {
     },
     resolve: {
         alias: {
-            // components: path.resolve(__dirname, '/Users/jcahisa/code/django/salestrack_app/salestrack/salestrack/static/js/components/')
             components: path.join(__dirname, 'salestrack/static/js/components/')
         }
     },

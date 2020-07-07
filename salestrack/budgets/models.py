@@ -1,8 +1,9 @@
+from datetime import datetime
 from django.db import models
-
 from clients.models import Client
 from clients.models import Address
 from clients.models import City
+from clients.models import Telephone
 from products.models import Product
 
 
@@ -28,6 +29,10 @@ class PaymentTerm(models.Model):
         verbose_name_plural = "Términos de Pago"
 
 class Budget(models.Model):
+    class Meta:
+        verbose_name = "Presupuesto"
+        verbose_name_plural = "Presupuestos"
+
     BUDGET_STATUS_CHOICES = (
         ('B', 'Borrador'),
         ('E', 'Enviado'),
@@ -38,19 +43,80 @@ class Budget(models.Model):
     date = models.DateField(verbose_name="Fecha")
     client = models.ForeignKey(Client, on_delete=models.PROTECT, null=False)
     delivery_address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
+    client_phone =  models.ForeignKey(Telephone, on_delete=models.PROTECT, null=True, blank=True)
     paymentTerm = models.ForeignKey(PaymentTerm, on_delete=models.PROTECT, null=True, blank=True)
     shipping = models.ForeignKey(Shipping, on_delete=models.PROTECT, null=True, blank=True)
-    status = models.CharField(max_length=1, default='B', choices=BUDGET_STATUS_CHOICES, verbose_name="Estado")
-    discount = models.DecimalField(verbose_name="Descuento", max_digits=4, decimal_places=2)
-    numero = models.IntegerField(verbose_name="Numero", unique=True, auto_created=True)
-    delivery_city = models.ForeignKey(City, on_delete=models.PROTECT, null=True, blank=True, verbose_name="Ciudad de Entrega")
+    status = models.CharField(
+        max_length=1,
+        default='B',
+        choices=BUDGET_STATUS_CHOICES,
+        verbose_name="Estado"
+    )
+    discount = models.DecimalField(
+        verbose_name="Descuento",
+        max_digits=4,
+        decimal_places=2,
+        default=0
+    )
+    number = models.CharField(max_length=11, null=False, blank=True, verbose_name="Number")
+    delivery_city = models.ForeignKey(
+        City,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name="Ciudad de Entrega"
+    )
+    commercial_terms = models.TextField(verbose_name="Terminos Comerciales", blank=True, default="")
 
     def __str__(self):
         return '{0} - {1}'.format(self.date, self.client.name)
 
-    class Meta:
-        verbose_name = "Presupuesto"
-        verbose_name_plural = "Presupuestos"
+    def set_client(self, client_id):
+        client = Client.objects.get(pk=client_id)
+        self.client = client
+
+    def set_delivery_address(self, address_id):
+        print('setting delivery address to id = {}'.format(address_id))
+        if address_id is None:
+            return
+
+        try:
+            address = Address.objects.get(pk=address_id)
+            self.delivery_address = address
+        except:
+            print('no Address found with id = {}'.format(address_id))
+
+    def set_client_phone_by_id(self, phone_id):
+        if phone_id is None:
+            return
+        
+        try:
+            phone = Telephone.objects.get(pk=phone_id)
+            self.client_phone = phone
+        except:
+            print('no Telephone found with id = {}'.format(phone_id))
+
+    def generate_budget_number(self):
+        today = datetime.today()
+        str_total_budgets = str(Budget.objects.filter(date__exact=today).count() + 1)
+
+        print(str_total_budgets)
+        str_total_budgets = str_total_budgets.rjust(3, '0')
+        print(str_total_budgets)
+        str_new_number = today.strftime('%Y%m%d') + str_total_budgets
+        print(str_new_number)
+        new_number = int(str_new_number)
+        self.number = new_number
+
+    def save(self, *args, **kwargs):
+        print ("saving a new budget")
+        if (self.number is None or not self.number):
+            self.generate_budget_number()
+
+        if (self.date is None):
+            self.date = datetime.today()
+
+        super().save(*args, **kwargs)
 
 
 class BudgetDetail(models.Model):
