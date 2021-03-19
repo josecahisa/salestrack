@@ -6,7 +6,7 @@ django-appconf==1.0.3
 django-compressor==2.3
 django-libsass==0.7
 django-webpack-loader==0.6.0
-djangorestframework==3.10.2
+djangorestframework==3.11.2
 graphene==2.1.8
 graphene-django==2.8.0
 graphql-core==2.2.1
