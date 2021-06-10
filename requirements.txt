@@ -1,7 +1,7 @@
 aniso8601==7.0.0
 astroid==2.3.2
 coverage==4.5.4
-Django==2.2.3
+Django==2.2.24
 django-appconf==1.0.3
 django-compressor==2.3
 django-libsass==0.7
